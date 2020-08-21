@@ -12,7 +12,7 @@ namespace voxblox {
 
 class SemanticColorMap {
  public:
-  enum ClassTask { kCoco80 = 0, kNyu13 };
+  enum ClassTask { kCoco80 = 0, kNyu13, kCocoPano };
 
   static SemanticColorMap create(const ClassTask& class_task);
 
@@ -35,6 +35,12 @@ class Nyu13ColorMap : public SemanticColorMap {
 class CocoColorMap : public SemanticColorMap {
  public:
   CocoColorMap();
+};
+
+// COCO pano class task color.
+class CocoPanoColorMap : public SemanticColorMap {
+ public:
+  CocoPanoColorMap();
 };
 }  // namespace voxblox
 

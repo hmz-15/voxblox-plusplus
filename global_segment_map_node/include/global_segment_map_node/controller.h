@@ -191,6 +191,9 @@ class Controller {
   ros::Publisher* scene_cloud_pub_;
   ros::Publisher* bbox_pub_;
 
+
+  bool pub_bbox_flag_ = false;
+  int pub_bbox_count_ = 0;
   std::thread viz_thread_;
   Visualizer* visualizer_;
   std::mutex label_tsdf_layers_mutex_;

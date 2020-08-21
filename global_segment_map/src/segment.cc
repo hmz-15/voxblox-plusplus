@@ -52,19 +52,27 @@ Segment::Segment(
   points_C_.reserve(point_cloud.points.size());
   colors_.reserve(point_cloud.points.size());
 
+  bool flag = true;
   for (size_t i = 0u; i < point_cloud.points.size(); ++i) {
     if (!std::isfinite(point_cloud.points[i].x) ||
         !std::isfinite(point_cloud.points[i].y) ||
         !std::isfinite(point_cloud.points[i].z)) {
       continue;
     }
-
+    if (flag)
+    {
+      semantic_label_ = point_cloud.points[i].semantic_label;
+      instance_label_ = point_cloud.points[i].instance_label;
+      flag = false;
+    }
     points_C_.push_back(Point(point_cloud.points[i].x, point_cloud.points[i].y,
                               point_cloud.points[i].z));
 
     colors_.push_back(Color(point_cloud.points[i].r, point_cloud.points[i].g,
                             point_cloud.points[i].b, point_cloud.points[i].a));
   }
+  // std::cout<<"semantics"<<(int)instance_label_<<std::endl;
+  
 }
 
 }  // namespace voxblox

@@ -38,87 +38,140 @@ namespace voxblox {
 namespace voxblox_gsm {
 
 // TODO(ntonci): Move this to a separate header.
-std::string classes[81] = {"BG",
-                           "person",
-                           "bicycle",
-                           "car",
-                           "motorcycle",
-                           "airplane",
-                           "bus",
-                           "train",
-                           "truck",
-                           "boat",
-                           "traffic light",
-                           "fire hydrant",
-                           "stop sign",
-                           "parking meter",
-                           "bench",
-                           "bird",
-                           "cat",
-                           "dog",
-                           "horse",
-                           "sheep",
-                           "cow",
-                           "elephant",
-                           "bear",
-                           "zebra",
-                           "giraffe",
-                           "backpack",
-                           "umbrella",
-                           "handbag",
-                           "tie",
-                           "suitcase",
-                           "frisbee",
-                           "skis",
-                           "snowboard",
-                           "sports ball",
-                           "kite",
-                           "baseball bat",
-                           "baseball glove",
-                           "skateboard",
-                           "surfboard",
-                           "tennis racket",
-                           "bottle",
-                           "wine glass",
-                           "cup",
-                           "fork",
-                           "knife",
-                           "spoon",
-                           "bowl",
-                           "banana",
-                           "apple",
-                           "sandwich",
-                           "orange",
-                           "broccoli",
-                           "carrot",
-                           "hot dog",
-                           "pizza",
-                           "donut",
-                           "cake",
-                           "chair",
-                           "couch",
-                           "potted plant",
-                           "bed",
-                           "dining table",
-                           "toilet",
-                           "tv",
-                           "laptop",
-                           "mouse",
-                           "remote",
-                           "keyboard",
-                           "cell phone",
-                           "microwave",
-                           "oven",
-                           "toaster",
-                           "sink",
-                           "refrigerator",
-                           "book",
-                           "clock",
-                           "vase",
-                           "scissors",
-                           "teddy bear",
-                           "hair drier",
-                           "toothbrush"};
+std::string classes[135] = {"person", 
+                            "bicycle", 
+                            "car", 
+                            "motorcycle", 
+                            "airplane", 
+                            "bus", 
+                            "train", 
+                            "truck", 
+                            "boat", 
+                            "traffic light", 
+                            "fire hydrant", 
+                            "stop sign", 
+                            "parking meter", 
+                            "bench", 
+                            "bird", 
+                            "cat", 
+                            "dog", 
+                            "horse", 
+                            "sheep", 
+                            "cow", 
+                            "elephant", 
+                            "bear", 
+                            "zebra", 
+                            "giraffe", 
+                            "backpack", 
+                            "umbrella", 
+                            "handbag", 
+                            "tie", 
+                            "suitcase", 
+                            "frisbee", 
+                            "skis", 
+                            "snowboard", 
+                            "sports ball", 
+                            "kite", 
+                            "baseball bat", 
+                            "baseball glove", 
+                            "skateboard", 
+                            "surfboard", 
+                            "tennis racket", 
+                            "bottle", 
+                            "wine glass", 
+                            "cup", 
+                            "fork", 
+                            "knife", 
+                            "spoon", 
+                            "bowl", 
+                            "banana", 
+                            "apple", 
+                            "sandwich", 
+                            "orange", 
+                            "broccoli", 
+                            "carrot", 
+                            "hot dog", 
+                            "pizza", 
+                            "donut", 
+                            "cake", 
+                            "chair", 
+                            "couch", 
+                            "potted plant", 
+                            "bed", 
+                            "dining table", 
+                            "toilet", 
+                            "tv", 
+                            "laptop", 
+                            "mouse", 
+                            "remote", 
+                            "keyboard", 
+                            "cell phone", 
+                            "microwave", 
+                            "oven", 
+                            "toaster", 
+                            "sink", 
+                            "refrigerator", 
+                            "book", 
+                            "clock", 
+                            "vase", 
+                            "scissors", 
+                            "teddy bear", 
+                            "hair drier", 
+                            "toothbrush", 
+                            "background",
+                            "banner",
+                            "blanket", 
+                            "bridge", 
+                            "cardboard", 
+                            "counter", 
+                            "curtain", 
+                            "door-stuff", 
+                            "floor-wood", 
+                            "flower", 
+                            "fruit", 
+                            "gravel", 
+                            "house", 
+                            "light", 
+                            "mirror-stuff", 
+                            "net", 
+                            "pillow", 
+                            "platform", 
+                            "playingfield", 
+                            "railroad", 
+                            "river", 
+                            "road", 
+                            "roof", 
+                            "sand", 
+                            "sea", 
+                            "shelf", 
+                            "snow", 
+                            "stairs", 
+                            "tent", 
+                            "towel", 
+                            "wall-brick", 
+                            "wall-stone", 
+                            "wall-tile", 
+                            "wall-wood", 
+                            "water-other", 
+                            "window-blind", 
+                            "window-other", 
+                            "tree-merged", 
+                            "fence-merged", 
+                            "ceiling-merged", 
+                            "sky-other-merged", 
+                            "cabinet-merged", 
+                            "table-merged", 
+                            "floor-other-merged", 
+                            "pavement-merged", 
+                            "mountain-merged", 
+                            "grass-merged", 
+                            "dirt-merged", 
+                            "paper-merged", 
+                            "food-other-merged", 
+                            "building-other-merged", 
+                            "rock-merged", 
+                            "wall-other-merged", 
+                            "rug-merged"};
 
 Controller::Controller(ros::NodeHandle* node_handle_private)
     : node_handle_private_(node_handle_private),
@@ -230,6 +283,8 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
     label_tsdf_mesh_config_.class_task = SemanticColorMap::ClassTask ::kCoco80;
   } else if (class_task.compare("nyu13") == 0) {
     label_tsdf_mesh_config_.class_task = SemanticColorMap::ClassTask ::kNyu13;
+  } else if (class_task.compare("cocoPano") == 0) {
+    label_tsdf_mesh_config_.class_task = SemanticColorMap::ClassTask ::kCocoPano;
   } else {
     label_tsdf_mesh_config_.class_task = SemanticColorMap::ClassTask::kCoco80;
   }
@@ -589,7 +644,7 @@ void Controller::segmentPointCloudCallback(
 
 void Controller::resetMeshIntegrators() {
   label_tsdf_mesh_config_.color_scheme =
-      MeshLabelIntegrator::ColorScheme::kMerged;
+      MeshLabelIntegrator::ColorScheme::kColor;  // Change visualization of kMerged layer
 
   mesh_merged_integrator_.reset(
       new MeshLabelIntegrator(mesh_config_, label_tsdf_mesh_config_, map_.get(),
@@ -741,10 +796,10 @@ bool Controller::saveSegmentsAsMeshCallback(
     const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
     const Layer<LabelVoxel>& segment_label_layer = it->second.second;
 
-    CHECK_EQ(voxblox::file_utils::makePath("gsm_segments", 0777), 0);
+    CHECK_EQ(voxblox::file_utils::makePath("/home/zeyu/Documents/gsm_segments", 0777), 0);
 
     std::string mesh_filename =
-        "gsm_segments/gsm_segment_mesh_label_" + std::to_string(label) + ".ply";
+        "/home/zeyu/Documents/gsm_segments/gsm_segment_mesh_label_" + std::to_string(label) + ".ply";
 
     bool success = voxblox::io::outputLayerAsPly(
         segment_tsdf_layer, mesh_filename,
@@ -825,6 +880,10 @@ bool Controller::getAlignedInstanceBoundingBoxCallback(
   Eigen::Vector3f bbox_size;
   computeAlignedBoundingBox(instance_pointcloud, &bbox_translation,
                             &bbox_quaternion, &bbox_size);
+
+//   bbox_quaternion.x() = 0.0;
+//   bbox_quaternion.y() = 0.0;
+//   bbox_quaternion.z() = std::sqrt(1-std::pow(bbox_quaternion.w(),2));
 
   fillAlignedBoundingBoxMsg(bbox_translation, bbox_quaternion, bbox_size,
                             &response.bbox);
@@ -914,6 +973,7 @@ bool Controller::lookupTransform(const std::string& from_frame,
   // up the latest (this is to work with bag files and static transform
   // publisher, etc).
   if (!tf_listener_.canTransform(to_frame, from_frame, time_to_lookup)) {
+    std::cout << "using latest tf" << std::endl;
     time_to_lookup = ros::Time(0);
     LOG(ERROR) << "Using latest TF transform instead of timestamp match.";
     return false;
@@ -1012,6 +1072,7 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
     }
 
     if (multiple_visualizers_) {
+      // std::cout<<"visualize"<<std::endl;
       bool clear_updated_flag = false;
       mesh_layer_updated_ |= mesh_label_integrator_->generateMesh(
           only_mesh_updated_blocks, clear_updated_flag);
@@ -1025,10 +1086,93 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
     // TODO(ntonci): Why not calling generateMesh instead?
     mesh_layer_updated_ |= mesh_merged_integrator_->generateMesh(
         only_mesh_updated_blocks, clear_updated_flag);
-
     generate_mesh_timer.Stop();
   }
 
+  if (pub_bbox_flag_)
+  {
+
+    visualization_msgs::Marker bbox_marker;
+    bbox_marker.header.frame_id = world_frame_;
+    bbox_marker.header.stamp = ros::Time();
+    bbox_marker.action = visualization_msgs::Marker::DELETEALL;
+    bbox_pub_->publish(bbox_marker);
+
+    InstanceLabels all_instance_labels;
+    SemanticLabels all_semantic_labels;
+    std::unordered_map<InstanceLabel, LabelTsdfMap::LayerPair>
+        instance_label_to_layers;
+
+    {
+      std::lock_guard<std::mutex> label_tsdf_layers_lock(
+          label_tsdf_layers_mutex_);
+      // Get list of all instances in the map.
+      // all_instance_labels = map_->getInstanceList();
+      map_->getSemanticInstanceList(&all_instance_labels, &all_semantic_labels);
+    }
+
+    for (int i = 0; i < all_semantic_labels.size(); i++)
+      std::cout<<classes[(unsigned)all_semantic_labels[i]]<<" "<<(int)all_semantic_labels[i]<<std::endl;
+
+    bool kSaveSegmentsAsPly = false;
+    extractInstanceSegments(all_instance_labels, kSaveSegmentsAsPly,
+                            &instance_label_to_layers);
+
+    for (const InstanceLabel inst_label: all_instance_labels)
+    {
+      auto it = instance_label_to_layers.find(inst_label);
+      if(it == instance_label_to_layers.end())
+          continue;
+
+      const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
+
+      pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(
+          new pcl::PointCloud<pcl::PointSurfel>);
+
+      convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_,
+                                  instance_pointcloud.get());
+
+      if (instance_pointcloud->points.size()==0)
+        continue;
+
+      Eigen::Vector3f bbox_translation;
+      Eigen::Quaternionf bbox_quaternion;
+      Eigen::Vector3f bbox_size;
+      computeAlignedBoundingBox(instance_pointcloud, &bbox_translation,
+                                &bbox_quaternion, &bbox_size);
+      // SemanticLabel semantic_label = mesh_merged_integrator_->semantic_instance_label_fusion_ptr_->getSemanticLabel(inst_label);
+      // cv::Vec3b color;
+      // mesh_merged_integrator_->semantic_color_map_.getColor(semantic_label, &(mesh->color));
+
+      // bbox_quaternion.x() = 0.0;
+      // bbox_quaternion.y() = 0.0;
+
+      auto itt = std::find(all_instance_labels.begin(), all_instance_labels.end(), inst_label);
+
+      if (publish_object_bbox_ && all_semantic_labels[itt-all_instance_labels.begin()] < 80) {
+      // if (publish_object_bbox_) {
+        visualization_msgs::Marker bbox_marker;
+        fillBoundingBoxMarkerMsg(world_frame_, inst_label, bbox_translation,
+                                bbox_quaternion, bbox_size, &bbox_marker);
+        bbox_pub_->publish(bbox_marker);
+
+      //   // geometry_msgs::TransformStamped bbox_tf;
+      //   // fillBoundingBoxTfMsg(world_frame_, std::to_string(instance_label),
+      //   //                     bbox_translation, bbox_quaternion, &bbox_tf);
+      //   // tf_broadcaster_.sendTransform(bbox_tf);
+      }
+    }
+    pub_bbox_flag_ = false;
+  }
+
+  pub_bbox_count_ ++;
+  if (pub_bbox_count_ > 4)
+  {
+    pub_bbox_count_ = 0;
+    pub_bbox_flag_ = true;
+  }
+
+  
   if (publish_scene_mesh_) {
     timing::Timer publish_mesh_timer("mesh/publish");
     voxblox_msgs::Mesh mesh_msg;

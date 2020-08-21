@@ -11,22 +11,23 @@ voxblox:
   max_ray_length_m: 3.5
 
 gsm:
-  min_label_voxel_count: 20
+  min_label_voxel_count: 8
   label_propagation_td_factor: 1.0
 
 pairwise_confidence_merging:
-  enable_pairwise_confidence_merging: true
-  merging_min_overlap_ratio: 0.1
+  enable_pairwise_confidence_merging: false
+  merging_min_overlap_ratio: 0.01
+  # 
   merging_min_frame_count: 2
 
 semantic_instance_segmentation:
   enable_semantic_instance_segmentation: false
-  class_tsdk: "coco80"
+  class_task: "coco80"
 
 publishers:
   publish_scene_map: true
   publish_scene_mesh: true
-  publish_object_bbox: false
+  publish_object_bbox: true
 
 meshing:
   visualize: false

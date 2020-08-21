@@ -350,7 +350,7 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
           InstanceLabel instance_label =
               semantic_instance_label_fusion_ptr_->getInstanceLabel(
                   label, assigned_instances);
-
+          
           if (instance_label != 0u) {
             current_to_global_instance_map_.emplace(
                 (*segment_it)->instance_label_, instance_label);
@@ -919,6 +919,7 @@ Transformation LabelTsdfIntegrator::getIcpRefined_T_G_C(
     const Transformation& T_G_C_init, const Pointcloud& point_cloud) {
   // TODO(ff): We should actually check here how many blocks are in the
   // camera frustum.
+  LOG(INFO) << "start icp ";
   if (layer_->getNumberOfAllocatedBlocks() <= 0u) {
     return T_G_C_init;
   }
@@ -927,9 +928,10 @@ Transformation LabelTsdfIntegrator::getIcpRefined_T_G_C(
   if (!label_tsdf_config_.keep_track_of_icp_correction) {
     T_Gicp_G_.setIdentity();
   }
-
+  LOG(INFO) << "start icp 1 ";
   const size_t num_icp_updates =
       icp_->runICP(*layer_, point_cloud, T_Gicp_G_ * T_G_C_init, &T_Gicp_C);
+  LOG(INFO) << "get icp ";
   if (num_icp_updates == 0u ||
       num_icp_updates > label_tsdf_config_.max_num_icp_updates) {
     LOG(INFO) << "num_icp_updates is too high or 0: " << num_icp_updates

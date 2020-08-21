@@ -50,7 +50,7 @@ inline void fillBoundingBoxMarkerMsg(std::string world_frame, uint32_t id,
   bbox_marker->scale.x = bbox_size(0);
   bbox_marker->scale.y = bbox_size(1);
   bbox_marker->scale.z = bbox_size(2);
-  bbox_marker->color.a = 0.3;
+  bbox_marker->color.a = 0.2;
   bbox_marker->color.r = 0.0;
   bbox_marker->color.g = 1.0;
   bbox_marker->color.b = 0.0;

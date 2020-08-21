@@ -1,0 +1,38 @@
+world_frame_id: "world"
+segment_point_cloud_topic: "/perception/seg_point_cloud"
+
+voxblox:
+  voxel_size: 0.01
+  truncation_distance_factor: 5
+  voxel_carving_enabled: false
+  # min_ray_length_m: 0.2
+  max_ray_length_m: 3.5
+  method: "fast"
+
+semantic_instance_segmentation:
+  enable_semantic_instance_segmentation: true
+  class_task: "cocoPano"
+
+pairwise_confidence_merging:
+  enable_pairwise_confidence_merging: true
+  merging_min_overlap_ratio: 0.02
+  merging_min_frame_count: 2
+
+meshing:
+  visualize: true
+  publish_scene_mesh: true
+  update_mesh_every_n_sec: 2.0
+  visualizer_parameters:
+    camera_position: [-1.91571,  -0.148907, 1.38851,   # Position - x y z
+                       0.335035, -1.0907,  -0.0125681, # Focal point - x y z
+                       0.480502, -0.139695, 0.865796]  # View up - x y z
+    clip_distances: [ 0.00685696, 6.85696]
+
+icp:
+  enable_icp: false
+  keep_track_of_icp_correction: false
+
+
+debug:
+  verbose_log: false
+  multiple_visualizers: true

@@ -64,6 +64,10 @@ class MeshLabelIntegrator : public MeshIntegrator<TsdfVoxel> {
   bool generateMesh(const bool only_mesh_updated_blocks,
                     const bool clear_updated_flag);
 
+  // SemanticLabel getSemanticLabel(const bool only_mesh_updated_blocks,
+  //                   const bool clear_updated_flag);
+
+
  protected:
   void generateMeshBlocksFunction(const BlockIndexList& all_tsdf_blocks,
                                   const bool clear_updated_flag,
@@ -76,6 +80,9 @@ class MeshLabelIntegrator : public MeshIntegrator<TsdfVoxel> {
   void updateMeshBlockColor(Block<TsdfVoxel>::ConstPtr tsdf_block,
                             Block<LabelVoxel>::ConstPtr label_block,
                             Mesh* mesh_block);
+
+  void updateMeshColor(const Block<TsdfVoxel>& tsdf_block, 
+                        const Block<LabelVoxel>& label_block, Mesh* mesh);
 
   void updateMeshColor(const Block<TsdfVoxel>& tsdf_block, Mesh* mesh);
 

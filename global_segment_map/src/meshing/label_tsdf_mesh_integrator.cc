@@ -195,6 +195,13 @@ void MeshLabelIntegrator::updateMeshBlockColor(
     case kNormals:
       updateMeshColor(*tsdf_block, mesh_block);
       break;
+    case kMerged:
+      if (!label_block) {
+        LOG(FATAL)
+            << "Trying to color a mesh using a non-existent label block.";
+      }
+      updateMeshColor(*tsdf_block, *label_block, mesh_block);
+      break;
     default:
       if (!label_block) {
         LOG(FATAL)
@@ -203,6 +210,104 @@ void MeshLabelIntegrator::updateMeshBlockColor(
       updateMeshColor(*label_block, mesh_block);
   }
 }
+
+void MeshLabelIntegrator::updateMeshColor(const Block<TsdfVoxel>& tsdf_block, 
+                        const Block<LabelVoxel>& label_block, Mesh* mesh) {
+  CHECK_NOTNULL(mesh);
+
+  mesh->colors.clear();
+  mesh->colors.resize(mesh->indices.size());
+
+
+  // for (size_t i = 0u; i < mesh->vertices.size(); ++i) {
+  //   const Point& vertex = mesh->vertices[i];
+  //   VoxelIndex voxel_index =
+  //       label_block.computeVoxelIndexFromCoordinates(vertex);
+  //   if (label_block.isValidVoxelIndex(voxel_index)) {
+  //     const LabelVoxel& voxel = label_block.getVoxelByVoxelIndex(voxel_index);
+  //     SemanticLabel semantic_label = 0u;
+  //     InstanceLabel instance_label = getInstanceLabel(voxel.label);
+  //     if (instance_label != BackgroundLabel) {
+  //       semantic_label =
+  //           semantic_instance_label_fusion_ptr_->getSemanticLabel(
+  //               voxel.label);
+  //     }
+  //     semantic_color_map_.getColor(semantic_label, &(mesh->colors[i]));
+  //   } else {
+  //     const typename Block<LabelVoxel>::ConstPtr neighbor_block =
+  //         label_layer_const_ptr_->getBlockPtrByCoordinates(vertex);
+  //     const LabelVoxel& voxel = neighbor_block->getVoxelByCoordinates(vertex);
+      
+  //     SemanticLabel semantic_label = 0u;
+  //     InstanceLabel instance_label = getInstanceLabel(voxel.label);
+  //     if (instance_label != BackgroundLabel) {
+  //       semantic_label =
+  //           semantic_instance_label_fusion_ptr_->getSemanticLabel(
+  //               voxel.label);
+  //     }
+  //     semantic_color_map_.getColor(semantic_label, &(mesh->colors[i]));
+  //   }
+  // }
+
+  // Use nearest-neighbor search.
+  for (size_t i = 0u; i < mesh->vertices.size(); ++i) {
+    const Point& vertex = mesh->vertices[i];
+    VoxelIndex voxel_index = label_block.computeVoxelIndexFromCoordinates(vertex);
+    SemanticLabel semantic_label = 80u;
+    if (label_block.isValidVoxelIndex(voxel_index)){
+      const LabelVoxel& voxel = label_block.getVoxelByVoxelIndex(voxel_index);
+      InstanceLabel instance_label = getInstanceLabel(voxel.label);
+      if (instance_label != BackgroundLabel) {
+        semantic_label = semantic_instance_label_fusion_ptr_->getSemanticLabel(voxel.label);
+        semantic_color_map_.getColor(semantic_label, &(mesh->colors[i]));
+      }
+      else
+      {
+        VoxelIndex tsdf_voxel_index = tsdf_block.computeVoxelIndexFromCoordinates(vertex);
+        if (tsdf_block.isValidVoxelIndex(tsdf_voxel_index)) {
+          const TsdfVoxel& tsdf_voxel = tsdf_block.getVoxelByVoxelIndex(tsdf_voxel_index);
+          utils::getColorIfValid(tsdf_voxel, config_.min_weight, &(mesh->colors[i]));
+        }
+        else
+        {
+          const typename Block<TsdfVoxel>::ConstPtr tsdf_neighbor_block =
+            sdf_layer_const_->getBlockPtrByCoordinates(vertex);
+          const TsdfVoxel& tsdf_voxel = tsdf_neighbor_block->getVoxelByCoordinates(vertex);
+          utils::getColorIfValid(tsdf_voxel, config_.min_weight, &(mesh->colors[i]));
+        }
+      }
+    }
+    else {
+      const typename Block<LabelVoxel>::ConstPtr neighbor_block =
+          label_layer_const_ptr_->getBlockPtrByCoordinates(vertex);
+      const LabelVoxel& voxel = neighbor_block->getVoxelByCoordinates(vertex);
+      InstanceLabel instance_label = getInstanceLabel(voxel.label);
+      if (instance_label != BackgroundLabel) {
+        semantic_label =
+            semantic_instance_label_fusion_ptr_->getSemanticLabel(
+                voxel.label);
+        semantic_color_map_.getColor(semantic_label, &(mesh->colors[i]));
+      }
+      else
+      {
+        VoxelIndex tsdf_voxel_index = tsdf_block.computeVoxelIndexFromCoordinates(vertex);
+        if (tsdf_block.isValidVoxelIndex(tsdf_voxel_index)) {
+          const TsdfVoxel& tsdf_voxel = tsdf_block.getVoxelByVoxelIndex(tsdf_voxel_index);
+          utils::getColorIfValid(tsdf_voxel, config_.min_weight, &(mesh->colors[i]));
+        }
+        else
+        {
+          const typename Block<TsdfVoxel>::ConstPtr tsdf_neighbor_block =
+            sdf_layer_const_->getBlockPtrByCoordinates(vertex);
+          const TsdfVoxel& tsdf_voxel = tsdf_neighbor_block->getVoxelByCoordinates(vertex);
+          utils::getColorIfValid(tsdf_voxel, config_.min_weight, &(mesh->colors[i]));
+        }
+      }
+    }
+    
+  }
+}
+    
 
 void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
                                           Mesh* mesh) {
@@ -227,7 +332,7 @@ void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
           label_color_map_.getColor(voxel.label, &(mesh->colors[i]));
         } break;
         case kSemantic: {
-          SemanticLabel semantic_label = 0u;
+          SemanticLabel semantic_label = 80u;
           InstanceLabel instance_label = getInstanceLabel(voxel.label);
           if (instance_label != BackgroundLabel) {
             semantic_label =
@@ -240,14 +345,15 @@ void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
           InstanceLabel instance_label = getInstanceLabel(voxel.label);
           instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
         } break;
-        case kMerged: {
-          InstanceLabel instance_label = getInstanceLabel(voxel.label);
-          if (instance_label == BackgroundLabel) {
-            label_color_map_.getColor(voxel.label, &(mesh->colors[i]));
-          } else {
-            instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
-          }
-        } break;
+        // case kMerged: {
+          // InstanceLabel instance_label = getInstanceLabel(voxel.label);
+          // if (instance_label == BackgroundLabel) {
+          //   label_color_map_.getColor(voxel.label, &(mesh->colors[i]));
+          // } else {
+            // instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
+          // }
+          
+        // } break;
         default: {
           LOG(FATAL) << "Unknown mesh color scheme: "
                      << label_tsdf_config_.color_scheme;
@@ -266,7 +372,7 @@ void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
               voxel, label_tsdf_config_.max_confidence, &(mesh->colors[i]));
         } break;
         case kSemantic: {
-          SemanticLabel semantic_label = 0u;
+          SemanticLabel semantic_label = 80u;
           InstanceLabel instance_label = getInstanceLabel(voxel.label);
           if (instance_label != BackgroundLabel) {
             semantic_label =
@@ -279,14 +385,14 @@ void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
           InstanceLabel instance_label = getInstanceLabel(voxel.label);
           instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
         } break;
-        case kMerged: {
-          InstanceLabel instance_label = getInstanceLabel(voxel.label);
-          if (instance_label == BackgroundLabel) {
-            label_color_map_.getColor(voxel.label, &(mesh->colors[i]));
-          } else {
-            instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
-          }
-        } break;
+        // case kMerged: {
+          // InstanceLabel instance_label = getInstanceLabel(voxel.label);
+          // if (instance_label == BackgroundLabel) {
+          //   label_color_map_.getColor(voxel.label, &(mesh->colors[i]));
+          // } else {
+            // instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
+          // }
+        // } break;
         default: {
           LOG(FATAL) << "Unknown mesh color scheme: "
                      << label_tsdf_config_.color_scheme;
