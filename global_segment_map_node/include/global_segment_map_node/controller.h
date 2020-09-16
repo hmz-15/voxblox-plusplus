@@ -5,6 +5,7 @@
 #define VOXBLOX_GSM_CONTROLLER_H_
 
 #include <vector>
+#include <fstream>
 
 #include <geometry_msgs/Transform.h>
 #include <global_segment_map/label_tsdf_integrator.h>
@@ -13,6 +14,7 @@
 #include <global_segment_map/meshing/label_tsdf_mesh_integrator.h>
 #include <global_segment_map/utils/visualizer.h>
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
@@ -133,6 +135,11 @@ class Controller {
       const pcl::PointCloud<pcl::PointSurfel>::Ptr surfel_cloud,
       Eigen::Vector3f* bbox_translation, Eigen::Quaternionf* bbox_quaternion,
       Eigen::Vector3f* bbox_size);
+
+  void computeGroundOrientedBoundingBox(
+    const pcl::PointCloud<pcl::PointSurfel>::Ptr surfel_cloud,
+    Eigen::Vector3f* bbox_translation, Eigen::Quaternionf* bbox_quaternion,
+    Eigen::Vector3f* bbox_size) ;
 
   void extractInstanceSegments(
       InstanceLabels instance_labels, bool save_segments_as_ply,

@@ -42,6 +42,9 @@ class LabelTsdfIntegrator : public MergedTsdfIntegrator {
     float merging_min_overlap_ratio = 0.2f;
     int merging_min_frame_count = 30;
 
+    // Instance-level label merging
+    bool enable_instance_label_merging = true;
+
     // Semantic instance-aware segmentation.
     bool enable_semantic_instance_segmentation = false;
 
@@ -242,7 +245,7 @@ class LabelTsdfIntegrator : public MergedTsdfIntegrator {
   // Semantic instance-aware segmentation.
   SemanticInstanceLabelFusion* semantic_instance_label_fusion_ptr_;
   InstanceLabel* highest_instance_ptr_;
-  std::map<SemanticLabel, SemanticLabel> current_to_global_instance_map_;
+  std::map<InstanceLabel, InstanceLabel> current_to_global_instance_map_;
 
   // Object database.
   LMap labels_to_publish_;

@@ -30,6 +30,8 @@
 #include <voxblox_ros/mesh_vis.h>
 #include "global_segment_map_node/conversions.h"
 
+#include <pcl/common/common.h>
+
 #ifdef APPROXMVBB_AVAILABLE
 #include <ApproxMVBB/ComputeApproxMVBB.hpp>
 #endif
@@ -269,6 +271,11 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
       label_tsdf_integrator_config_.merging_min_frame_count);
 
   node_handle_private_->param<bool>(
+      "instance_label_merging/enable_instance_label_merging",
+      label_tsdf_integrator_config_.enable_instance_label_merging,
+      label_tsdf_integrator_config_.enable_instance_label_merging);
+
+  node_handle_private_->param<bool>(
       "semantic_instance_segmentation/enable_semantic_instance_segmentation",
       label_tsdf_integrator_config_.enable_semantic_instance_segmentation,
       label_tsdf_integrator_config_.enable_semantic_instance_segmentation);
@@ -314,12 +321,13 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
                                     multiple_visualizers_,
                                     multiple_visualizers_);
 
-  mesh_merged_layer_.reset(new MeshLayer(map_->block_size()));
+//   mesh_merged_layer_.reset(new MeshLayer(map_->block_size()));
+  mesh_instance_layer_.reset(new MeshLayer(map_->block_size()));
 
   if (multiple_visualizers_) {
-    mesh_label_layer_.reset(new MeshLayer(map_->block_size()));
-    mesh_semantic_layer_.reset(new MeshLayer(map_->block_size()));
-    mesh_instance_layer_.reset(new MeshLayer(map_->block_size()));
+    // mesh_label_layer_.reset(new MeshLayer(map_->block_size()));
+    // mesh_semantic_layer_.reset(new MeshLayer(map_->block_size()));
+    // mesh_instance_layer_.reset(new MeshLayer(map_->block_size()));
   }
 
   resetMeshIntegrators();
@@ -335,12 +343,13 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
   if (visualize) {
     std::vector<std::shared_ptr<MeshLayer>> mesh_layers;
 
-    mesh_layers.push_back(mesh_merged_layer_);
+    // mesh_layers.push_back(mesh_merged_layer_);
+    mesh_layers.push_back(mesh_instance_layer_);
 
     if (multiple_visualizers_) {
-      mesh_layers.push_back(mesh_label_layer_);
-      mesh_layers.push_back(mesh_instance_layer_);
-      mesh_layers.push_back(mesh_semantic_layer_);
+    //   mesh_layers.push_back(mesh_label_layer_);
+    //   mesh_layers.push_back(mesh_instance_layer_);
+    //   mesh_layers.push_back(mesh_semantic_layer_);
     }
 
     visualizer_ =
@@ -535,6 +544,8 @@ void Controller::integrateFrame(ros::Time msg_timestamp) {
   ros::WallTime start;
   ros::WallTime end;
 
+  std::cout << "init segment size " << segments_to_integrate_.size() <<std::endl;
+
   if (use_label_propagation_) {
     start = ros::WallTime::now();
     timing::Timer propagation_timer("label_propagation");
@@ -599,6 +610,8 @@ void Controller::integrateFrame(ros::Time msg_timestamp) {
   integrator_->mergeLabels(&merges_to_publish_);
   integrator_->getLabelsToPublish(&segment_labels_to_publish_);
 
+  map_->mergeInstanceLabels();
+
   end = ros::WallTime::now();
   LOG(INFO) << "Merged segments in " << (end - start).toSec() << " seconds.";
   start = ros::WallTime::now();
@@ -643,29 +656,35 @@ void Controller::segmentPointCloudCallback(
 }
 
 void Controller::resetMeshIntegrators() {
+//   label_tsdf_mesh_config_.color_scheme =
+//       MeshLabelIntegrator::ColorScheme::kColor;  // Change visualization of kMerged layer
+
+//   mesh_merged_integrator_.reset(
+//       new MeshLabelIntegrator(mesh_config_, label_tsdf_mesh_config_, map_.get(),
+//                               mesh_merged_layer_.get(), &need_full_remesh_));
+
   label_tsdf_mesh_config_.color_scheme =
-      MeshLabelIntegrator::ColorScheme::kColor;  // Change visualization of kMerged layer
-
-  mesh_merged_integrator_.reset(
-      new MeshLabelIntegrator(mesh_config_, label_tsdf_mesh_config_, map_.get(),
-                              mesh_merged_layer_.get(), &need_full_remesh_));
-
-  if (multiple_visualizers_) {
-    label_tsdf_mesh_config_.color_scheme =
-        MeshLabelIntegrator::ColorScheme::kLabel;
-    mesh_label_integrator_.reset(new MeshLabelIntegrator(
-        mesh_config_, label_tsdf_mesh_config_, map_.get(),
-        mesh_label_layer_.get(), &need_full_remesh_));
-    label_tsdf_mesh_config_.color_scheme =
-        MeshLabelIntegrator::ColorScheme::kSemantic;
-    mesh_semantic_integrator_.reset(new MeshLabelIntegrator(
-        mesh_config_, label_tsdf_mesh_config_, map_.get(),
-        mesh_semantic_layer_.get(), &need_full_remesh_));
-    label_tsdf_mesh_config_.color_scheme =
         MeshLabelIntegrator::ColorScheme::kInstance;
-    mesh_instance_integrator_.reset(new MeshLabelIntegrator(
+  mesh_instance_integrator_.reset(new MeshLabelIntegrator(
         mesh_config_, label_tsdf_mesh_config_, map_.get(),
         mesh_instance_layer_.get(), &need_full_remesh_));
+
+  if (multiple_visualizers_) {
+    // label_tsdf_mesh_config_.color_scheme =
+    //     MeshLabelIntegrator::ColorScheme::kLabel;
+    // mesh_label_integrator_.reset(new MeshLabelIntegrator(
+    //     mesh_config_, label_tsdf_mesh_config_, map_.get(),
+    //     mesh_label_layer_.get(), &need_full_remesh_));
+    // label_tsdf_mesh_config_.color_scheme =
+    //     MeshLabelIntegrator::ColorScheme::kSemantic;
+    // mesh_semantic_integrator_.reset(new MeshLabelIntegrator(
+    //     mesh_config_, label_tsdf_mesh_config_, map_.get(),
+    //     mesh_semantic_layer_.get(), &need_full_remesh_));
+    // label_tsdf_mesh_config_.color_scheme =
+    //     MeshLabelIntegrator::ColorScheme::kInstance;
+    // mesh_instance_integrator_.reset(new MeshLabelIntegrator(
+    //     mesh_config_, label_tsdf_mesh_config_, map_.get(),
+    //     mesh_instance_layer_.get(), &need_full_remesh_));
   }
 }
 
@@ -787,6 +806,9 @@ bool Controller::saveSegmentsAsMeshCallback(
     CHECK_EQ(mkdir(kSegmentFolder, ACCESSPERMS), 0);
   }
 
+  std::string path = ros::package::getPath("perception_ros") + "/" + kSegmentFolder;
+  CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
+
   bool overall_success = true;
   for (Label label : labels) {
     auto it = label_to_layers.find(label);
@@ -796,10 +818,8 @@ bool Controller::saveSegmentsAsMeshCallback(
     const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
     const Layer<LabelVoxel>& segment_label_layer = it->second.second;
 
-    CHECK_EQ(voxblox::file_utils::makePath("/home/zeyu/Documents/gsm_segments", 0777), 0);
-
     std::string mesh_filename =
-        "/home/zeyu/Documents/gsm_segments/gsm_segment_mesh_label_" + std::to_string(label) + ".ply";
+        path + "/" + std::to_string(label) + ".ply";
 
     bool success = voxblox::io::outputLayerAsPly(
         segment_tsdf_layer, mesh_filename,
@@ -881,10 +901,6 @@ bool Controller::getAlignedInstanceBoundingBoxCallback(
   computeAlignedBoundingBox(instance_pointcloud, &bbox_translation,
                             &bbox_quaternion, &bbox_size);
 
-//   bbox_quaternion.x() = 0.0;
-//   bbox_quaternion.y() = 0.0;
-//   bbox_quaternion.z() = std::sqrt(1-std::pow(bbox_quaternion.w(),2));
-
   fillAlignedBoundingBoxMsg(bbox_translation, bbox_quaternion, bbox_size,
                             &response.bbox);
 
@@ -905,19 +921,54 @@ bool Controller::getAlignedInstanceBoundingBoxCallback(
 bool Controller::extractInstancesCallback(
     std_srvs::Empty::Request& /*request*/,
     std_srvs::Empty::Response& /*response*/) {
-  InstanceLabels instance_labels;
+  InstanceLabels all_instance_labels;
+  SemanticLabels all_semantic_labels;
   std::unordered_map<InstanceLabel, LabelTsdfMap::LayerPair>
       instance_label_to_layers;
   {
     std::lock_guard<std::mutex> label_tsdf_layers_lock(
         label_tsdf_layers_mutex_);
     // Get list of all instances in the map.
-    instance_labels = map_->getInstanceList();
+    // instance_labels = map_->getInstanceList();
+    map_->getSemanticInstanceList(&all_instance_labels, &all_semantic_labels);
   }
 
+  all_instance_labels.push_back(static_cast<InstanceLabel>(0));
+  all_semantic_labels.push_back(static_cast<SemanticLabel>(80));
+
+  std::ofstream out;
+  std::string path = ros::package::getPath("perception_ros") + "/instance_segments";
+  CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
+  out.open (path + "/id.txt", std::ofstream::out | std::ofstream::trunc);
+  out.close();
+
   bool kSaveSegmentsAsPly = true;
-  extractInstanceSegments(instance_labels, kSaveSegmentsAsPly,
+  extractInstanceSegments(all_instance_labels, kSaveSegmentsAsPly,
                           &instance_label_to_layers);
+  
+  out.open (path + "/id.txt", std::ofstream::out | std::ofstream::app);
+  for (int i = 0; i < all_instance_labels.size(); i++)
+  {
+    InstanceLabel instance_label = all_instance_labels[i];
+    auto it = instance_label_to_layers.find(instance_label);
+    if (it != instance_label_to_layers.end())
+    {
+        const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
+        pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(new pcl::PointCloud<pcl::PointSurfel>);
+        convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_, instance_pointcloud.get());
+        Eigen::Vector3f bbox_translation;
+        Eigen::Quaternionf bbox_quaternion;
+        Eigen::Vector3f bbox_size;
+        computeGroundOrientedBoundingBox(instance_pointcloud, &bbox_translation, &bbox_quaternion, &bbox_size);
+        out << std::to_string(all_instance_labels[i]) << " " << std::to_string(all_semantic_labels[i]) << " "
+            << std::to_string(bbox_translation(0)) << " " << std::to_string(bbox_translation(1)) << " " << std::to_string(bbox_translation(2)) << " "
+            << std::to_string(bbox_size(0)) << " " << std::to_string(bbox_size(1)) << " " << std::to_string(bbox_size(2)) << " "
+            << std::to_string(bbox_quaternion.x()) << " " << std::to_string(bbox_quaternion.y()) << " " << std::to_string(bbox_quaternion.z()) << " "
+            << std::to_string(bbox_quaternion.w())
+            << std::endl;
+    }
+  }
+  out.close();
 
   return true;
 }
@@ -944,10 +995,19 @@ void Controller::extractInstanceSegments(
       const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
       const Layer<LabelVoxel>& segment_label_layer = it->second.second;
 
-      CHECK_EQ(voxblox::file_utils::makePath("vpp_instances", 0777), 0);
+      voxblox::Mesh mesh;
+      io::convertLayerToMesh(segment_tsdf_layer, mesh_config_, &mesh, false);
 
-      std::string mesh_filename = "vpp_instances/vpp_instance_segment_label_" +
-                                  std::to_string(instance_label) + ".ply";
+      if (mesh.size() < 400)
+      {
+        instance_label_to_layers->erase(it);
+        continue;    
+      }  
+      
+      std::string path = ros::package::getPath("perception_ros") + "/instance_segments";
+      CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
+
+      std::string mesh_filename = path + "/" + std::to_string(instance_label) + ".ply";
 
       bool success = voxblox::io::outputLayerAsPly(
           segment_tsdf_layer, mesh_filename,
@@ -957,6 +1017,7 @@ void Controller::extractInstanceSegments(
         LOG(INFO) << "Output segment file as PLY: " << mesh_filename.c_str();
       } else {
         LOG(INFO) << "Failed to output mesh as PLY: " << mesh_filename.c_str();
+        instance_label_to_layers->erase(it);
       }
     }
   }
@@ -1007,16 +1068,18 @@ void Controller::generateMesh(bool clear_mesh) {  // NOLINT
       }
 
       constexpr bool clear_updated_flag = true;
-      mesh_merged_integrator_->generateMesh(only_mesh_updated_blocks,
-                                            clear_updated_flag);
+      mesh_instance_integrator_->generateMesh(only_mesh_updated_blocks,
+                                                clear_updated_flag);
+    //   mesh_merged_integrator_->generateMesh(only_mesh_updated_blocks,
+    //                                         clear_updated_flag);
 
       if (multiple_visualizers_) {
-        mesh_label_integrator_->generateMesh(only_mesh_updated_blocks,
-                                             clear_updated_flag);
-        mesh_semantic_integrator_->generateMesh(only_mesh_updated_blocks,
-                                                clear_updated_flag);
-        mesh_instance_integrator_->generateMesh(only_mesh_updated_blocks,
-                                                clear_updated_flag);
+        // mesh_label_integrator_->generateMesh(only_mesh_updated_blocks,
+        //                                      clear_updated_flag);
+        // mesh_semantic_integrator_->generateMesh(only_mesh_updated_blocks,
+        //                                         clear_updated_flag);
+        // mesh_instance_integrator_->generateMesh(only_mesh_updated_blocks,
+        //                                         clear_updated_flag);
       }
       generate_mesh_timer.Stop();
     }
@@ -1028,7 +1091,8 @@ void Controller::generateMesh(bool clear_mesh) {  // NOLINT
       voxblox_msgs::Mesh mesh_msg;
       // TODO(margaritaG) : this function cleans up empty meshes, and this seems
       // to trouble the visualizer. Investigate.
-      generateVoxbloxMeshMsg(mesh_merged_layer_, ColorMode::kColor, &mesh_msg);
+    //   generateVoxbloxMeshMsg(mesh_merged_layer_, ColorMode::kColor, &mesh_msg);
+      generateVoxbloxMeshMsg(mesh_instance_layer_, ColorMode::kColor, &mesh_msg);
       mesh_msg.header.frame_id = world_frame_;
       scene_mesh_pub_->publish(mesh_msg);
       publish_mesh_timer.Stop();
@@ -1074,18 +1138,20 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
     if (multiple_visualizers_) {
       // std::cout<<"visualize"<<std::endl;
       bool clear_updated_flag = false;
-      mesh_layer_updated_ |= mesh_label_integrator_->generateMesh(
-          only_mesh_updated_blocks, clear_updated_flag);
-      mesh_layer_updated_ |= mesh_instance_integrator_->generateMesh(
-          only_mesh_updated_blocks, clear_updated_flag);
-      mesh_layer_updated_ |= mesh_semantic_integrator_->generateMesh(
-          only_mesh_updated_blocks, clear_updated_flag);
+    //   mesh_layer_updated_ |= mesh_label_integrator_->generateMesh(
+    //       only_mesh_updated_blocks, clear_updated_flag);
+    //   mesh_layer_updated_ |= mesh_instance_integrator_->generateMesh(
+    //       only_mesh_updated_blocks, clear_updated_flag);
+    //   mesh_layer_updated_ |= mesh_semantic_integrator_->generateMesh(
+    //       only_mesh_updated_blocks, clear_updated_flag);
     }
 
     bool clear_updated_flag = true;
     // TODO(ntonci): Why not calling generateMesh instead?
-    mesh_layer_updated_ |= mesh_merged_integrator_->generateMesh(
-        only_mesh_updated_blocks, clear_updated_flag);
+    mesh_layer_updated_ |= mesh_instance_integrator_->generateMesh(
+          only_mesh_updated_blocks, clear_updated_flag);
+    // mesh_layer_updated_ |= mesh_merged_integrator_->generateMesh(
+    //     only_mesh_updated_blocks, clear_updated_flag);
     generate_mesh_timer.Stop();
   }
 
@@ -1111,8 +1177,8 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
       map_->getSemanticInstanceList(&all_instance_labels, &all_semantic_labels);
     }
 
-    for (int i = 0; i < all_semantic_labels.size(); i++)
-      std::cout<<classes[(unsigned)all_semantic_labels[i]]<<" "<<(int)all_semantic_labels[i]<<std::endl;
+    for (int i = 0; i < all_instance_labels.size(); i++)
+      std::cout<<classes[(unsigned)all_semantic_labels[i]]<<" "<<(int)all_semantic_labels[i]<<" "<<(int)all_instance_labels[i]<<std::endl;
 
     bool kSaveSegmentsAsPly = false;
     extractInstanceSegments(all_instance_labels, kSaveSegmentsAsPly,
@@ -1129,38 +1195,38 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
       pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(
           new pcl::PointCloud<pcl::PointSurfel>);
 
-      convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_,
-                                  instance_pointcloud.get());
+    //   convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_,
+    //                               instance_pointcloud.get());
 
-      if (instance_pointcloud->points.size()==0)
-        continue;
+    //   if (instance_pointcloud->points.size()==0)
+    //     continue;
 
-      Eigen::Vector3f bbox_translation;
-      Eigen::Quaternionf bbox_quaternion;
-      Eigen::Vector3f bbox_size;
-      computeAlignedBoundingBox(instance_pointcloud, &bbox_translation,
-                                &bbox_quaternion, &bbox_size);
-      // SemanticLabel semantic_label = mesh_merged_integrator_->semantic_instance_label_fusion_ptr_->getSemanticLabel(inst_label);
-      // cv::Vec3b color;
-      // mesh_merged_integrator_->semantic_color_map_.getColor(semantic_label, &(mesh->color));
+    //   Eigen::Vector3f bbox_translation;
+    //   Eigen::Quaternionf bbox_quaternion;
+    //   Eigen::Vector3f bbox_size;
+    //   computeAlignedBoundingBox(instance_pointcloud, &bbox_translation,
+    //                             &bbox_quaternion, &bbox_size);
+    // //   SemanticLabel semantic_label = mesh_merged_integrator_->semantic_instance_label_fusion_ptr_->getSemanticLabel(inst_label);
+    //   // cv::Vec3b color;
+    //   // mesh_merged_integrator_->semantic_color_map_.getColor(semantic_label, &(mesh->color));
 
-      // bbox_quaternion.x() = 0.0;
-      // bbox_quaternion.y() = 0.0;
+    //   // bbox_quaternion.x() = 0.0;
+    //   // bbox_quaternion.y() = 0.0;
 
-      auto itt = std::find(all_instance_labels.begin(), all_instance_labels.end(), inst_label);
+    //   auto itt = std::find(all_instance_labels.begin(), all_instance_labels.end(), inst_label);
 
-      if (publish_object_bbox_ && all_semantic_labels[itt-all_instance_labels.begin()] < 80) {
-      // if (publish_object_bbox_) {
-        visualization_msgs::Marker bbox_marker;
-        fillBoundingBoxMarkerMsg(world_frame_, inst_label, bbox_translation,
-                                bbox_quaternion, bbox_size, &bbox_marker);
-        bbox_pub_->publish(bbox_marker);
+    //   if (publish_object_bbox_ && all_semantic_labels[itt-all_instance_labels.begin()] < 80) {
+    //   // if (publish_object_bbox_) {
+    //     visualization_msgs::Marker bbox_marker;
+    //     fillBoundingBoxMarkerMsg(world_frame_, inst_label, bbox_translation,
+    //                             bbox_quaternion, bbox_size, &bbox_marker);
+    //     bbox_pub_->publish(bbox_marker);
 
-      //   // geometry_msgs::TransformStamped bbox_tf;
-      //   // fillBoundingBoxTfMsg(world_frame_, std::to_string(instance_label),
-      //   //                     bbox_translation, bbox_quaternion, &bbox_tf);
-      //   // tf_broadcaster_.sendTransform(bbox_tf);
-      }
+    //   //   // geometry_msgs::TransformStamped bbox_tf;
+    //   //   // fillBoundingBoxTfMsg(world_frame_, std::to_string(instance_label),
+    //   //   //                     bbox_translation, bbox_quaternion, &bbox_tf);
+    //   //   // tf_broadcaster_.sendTransform(bbox_tf);
+    //   }
     }
     pub_bbox_flag_ = false;
   }
@@ -1178,7 +1244,7 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
     voxblox_msgs::Mesh mesh_msg;
     // TODO(margaritaG) : this function cleans up empty meshes, and this
     // seems to trouble the visualizer. Investigate.
-    generateVoxbloxMeshMsg(mesh_merged_layer_, ColorMode::kColor, &mesh_msg);
+    generateVoxbloxMeshMsg(mesh_instance_layer_, ColorMode::kColor, &mesh_msg);
     mesh_msg.header.frame_id = world_frame_;
     scene_mesh_pub_->publish(mesh_msg);
     publish_mesh_timer.Stop();
@@ -1226,6 +1292,80 @@ void Controller::computeAlignedBoundingBox(
   *bbox_quaternion = oobb.m_q_KI.cast<float>();
   *bbox_translation = ((min_in_I + max_in_I) / 2).cast<float>();
   *bbox_size = ((oobb.m_maxPoint - oobb.m_minPoint).cwiseAbs()).cast<float>();
+#else
+  LOG(WARNING) << "ApproxMVBB is not available and therefore "
+                  "bounding box functionality is disabled.";
+#endif
+}
+
+void Controller::computeGroundOrientedBoundingBox(
+    const pcl::PointCloud<pcl::PointSurfel>::Ptr surfel_cloud,
+    Eigen::Vector3f* bbox_translation, Eigen::Quaternionf* bbox_quaternion,
+    Eigen::Vector3f* bbox_size) 
+{
+    CHECK(surfel_cloud);
+    CHECK_NOTNULL(bbox_translation);
+    CHECK_NOTNULL(bbox_quaternion);
+    CHECK_NOTNULL(bbox_size);
+#ifdef APPROXMVBB_AVAILABLE
+    pcl::PointCloud<pcl::PointSurfel>::Ptr cloud (new pcl::PointCloud<pcl::PointSurfel>);
+    pcl::copyPointCloud(*surfel_cloud, *cloud);
+
+    int ground_axis = 1; // y axis
+
+    ApproxMVBB::Matrix2Dyn points(2, cloud->points.size());  // x, y in approxMVBB
+    
+    for (size_t i = 0u; i < cloud->points.size(); ++i) 
+    {
+        if (ground_axis == 0)
+        {
+            points(0, i) = double(cloud->points[i].y);
+            points(1, i) = double(cloud->points[i].z);
+        }
+        else if (ground_axis == 1)
+        {
+            points(0, i) = double(cloud->points[i].z);
+            points(1, i) = double(cloud->points[i].x);
+        }
+        else if (ground_axis == 2)
+        {
+            points(0, i) = double(cloud->points[i].x);
+            points(1, i) = double(cloud->points[i].y);
+        }
+    }
+
+    ApproxMVBB::MinAreaRectangle min_rectangle(points);
+    min_rectangle.compute();
+    ApproxMVBB::MinAreaRectangle::Box2d box_2d = min_rectangle.getMinRectangle();
+
+    Eigen::Vector2d pos_2d = box_2d.m_p + box_2d.m_v * box_2d.m_vL/2 + box_2d.m_u * box_2d.m_uL/2;
+    Eigen::Vector4f min;
+    Eigen::Vector4f max;
+    pcl::getMinMax3D(*surfel_cloud, min, max);
+
+    Eigen::Matrix3f rotation;
+    if (ground_axis == 0)
+        rotation << 1, 0,             0,
+                    0, box_2d.m_u(0), box_2d.m_v(0),
+                    0, box_2d.m_u(1), box_2d.m_v(1);
+    else if (ground_axis == 1)
+        rotation << box_2d.m_v(1), 0, box_2d.m_u(1),
+                    0,             1, 0,
+                    box_2d.m_v(0), 0, box_2d.m_u(0);
+    else if (ground_axis == 2)
+        rotation << box_2d.m_u(0), box_2d.m_v(0), 0,
+                    box_2d.m_u(1), box_2d.m_v(1), 0,
+                    0,             0,             1;
+
+    (*bbox_translation)(ground_axis) = (min(ground_axis) + max(ground_axis))/2;
+    (*bbox_translation)((ground_axis+1)%3) = pos_2d(0);
+    (*bbox_translation)((ground_axis+2)%3) = pos_2d(1);
+
+    (*bbox_size)(ground_axis) = max(ground_axis) - min(ground_axis);
+    (*bbox_size)((ground_axis+1)%3) = box_2d.m_uL;
+    (*bbox_size)((ground_axis+2)%3) = box_2d.m_vL;
+
+    *bbox_quaternion = Eigen::Quaternionf(rotation);
 #else
   LOG(WARNING) << "ApproxMVBB is not available and therefore "
                   "bounding box functionality is disabled.";

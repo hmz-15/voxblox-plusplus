@@ -76,6 +76,12 @@ class LabelTsdfMap {
   void getSemanticInstanceList(InstanceLabels* instance_labels,
                                SemanticLabels* semantic_labels);
 
+  // Merge Instance Labels
+  void mergeInstanceLabels()
+  {
+    semantic_instance_label_fusion_.mergeInstanceLabels();
+  }
+  
   /**
    * Extracts separate tsdf and label layers from the gsm, for every given
    * label.

@@ -16,9 +16,12 @@ gsm:
 
 pairwise_confidence_merging:
   enable_pairwise_confidence_merging: false
-  merging_min_overlap_ratio: 0.01
+  merging_min_overlap_ratio: 0.1
   # 
   merging_min_frame_count: 2
+
+instance_label_merging:
+  enable_instance_label_merging: false
 
 semantic_instance_segmentation:
   enable_semantic_instance_segmentation: false
