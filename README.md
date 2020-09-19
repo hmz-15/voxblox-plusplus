@@ -3,6 +3,10 @@
 [![Build Status](https://jenkins.asl.ethz.ch/buildStatus/icon?subject=ubuntu%2016.04%20%2B%20ROS%20kinetic&job=voxblox-plusplus-nightly%2Flabel%3Dubuntu-xenial)](https://jenkins.asl.ethz.ch/job/voxblox-plusplus-nightly/label=ubuntu-xenial/)
 [![Build Status](https://jenkins.asl.ethz.ch/buildStatus/icon?subject=ubuntu%2018.04%20%2B%20ROS%20melodic&job=voxblox-plusplus-nightly%2Flabel%3Dubuntu-bionic)](https://jenkins.asl.ethz.ch/job/voxblox-plusplus-nightly/label=ubuntu-bionic/)
 
+This is a modified version of the orginal "Voxblox++". The major modifications are:
+- Modified semantic-instance fusion to improve robustness against noisy segmentation input
+- Support of panoptic segmentation
+
 **Voxblox++** is a framework for incrementally building volumetric object-centric maps during online scanning with a localized RGB-D camera. Besides accurately describing the geometry of the reconstructed scene, the built maps contain information about the individual object instances observed in the scene. In particular, the proposed framework retrieves the dense shape and pose of recognized semantic objects, as well as of newly discovered, previously unobserved object-like instances.
 
 <p align="center">
