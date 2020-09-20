@@ -32,5 +32,5 @@ icp:
 
 
 debug:
-  verbose_log: true
+  verbose_log: false
   multiple_visualizers: true

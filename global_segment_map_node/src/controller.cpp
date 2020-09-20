@@ -178,7 +178,7 @@ namespace voxblox_gsm {
 const std::unordered_map<int, std::string> classes ({{0, "Person"}, {13, "Bench"}, {24, "Backpack"}, {39, "Bottle"}, {41, "Cup"},
                                                    {56, "Chair"}, {57, "Couch"}, {59, "Bed"}, {60, "Table"}, {61, "Toilet"},
                                                    {62, "TV"}, {63, "Laptop"}, {64, "Mouse"}, {66, "Keyboard"}, {68, "Microwave"},
-                                                   {69, "Oven"}, {72, "Refrigerator"}, {73, "Book"}, {87, "Door"}, {122, "Table"},
+                                                   {69, "Oven"}, {72, "Refrigerator"}, {73, "Book"}, {80, "Background"}, {87, "Door"}, {122, "Table"},
                                                    {121, "Cabinet"}, {123, "Floor"}, {132, "Wall"}, {119, "Ceiling"}});
 
 
