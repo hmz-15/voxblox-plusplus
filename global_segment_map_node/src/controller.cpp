@@ -40,140 +40,147 @@ namespace voxblox {
 namespace voxblox_gsm {
 
 // TODO(ntonci): Move this to a separate header.
-std::string classes[135] = {"person", 
-                            "bicycle", 
-                            "car", 
-                            "motorcycle", 
-                            "airplane", 
-                            "bus", 
-                            "train", 
-                            "truck", 
-                            "boat", 
-                            "traffic light", 
-                            "fire hydrant", 
-                            "stop sign", 
-                            "parking meter", 
-                            "bench", 
-                            "bird", 
-                            "cat", 
-                            "dog", 
-                            "horse", 
-                            "sheep", 
-                            "cow", 
-                            "elephant", 
-                            "bear", 
-                            "zebra", 
-                            "giraffe", 
-                            "backpack", 
-                            "umbrella", 
-                            "handbag", 
-                            "tie", 
-                            "suitcase", 
-                            "frisbee", 
-                            "skis", 
-                            "snowboard", 
-                            "sports ball", 
-                            "kite", 
-                            "baseball bat", 
-                            "baseball glove", 
-                            "skateboard", 
-                            "surfboard", 
-                            "tennis racket", 
-                            "bottle", 
-                            "wine glass", 
-                            "cup", 
-                            "fork", 
-                            "knife", 
-                            "spoon", 
-                            "bowl", 
-                            "banana", 
-                            "apple", 
-                            "sandwich", 
-                            "orange", 
-                            "broccoli", 
-                            "carrot", 
-                            "hot dog", 
-                            "pizza", 
-                            "donut", 
-                            "cake", 
-                            "chair", 
-                            "couch", 
-                            "potted plant", 
-                            "bed", 
-                            "dining table", 
-                            "toilet", 
-                            "tv", 
-                            "laptop", 
-                            "mouse", 
-                            "remote", 
-                            "keyboard", 
-                            "cell phone", 
-                            "microwave", 
-                            "oven", 
-                            "toaster", 
-                            "sink", 
-                            "refrigerator", 
-                            "book", 
-                            "clock", 
-                            "vase", 
-                            "scissors", 
-                            "teddy bear", 
-                            "hair drier", 
-                            "toothbrush", 
-                            "background",
-                            "banner",
-                            "blanket", 
-                            "bridge", 
-                            "cardboard", 
-                            "counter", 
-                            "curtain", 
-                            "door-stuff", 
-                            "floor-wood", 
-                            "flower", 
-                            "fruit", 
-                            "gravel", 
-                            "house", 
-                            "light", 
-                            "mirror-stuff", 
-                            "net", 
-                            "pillow", 
-                            "platform", 
-                            "playingfield", 
-                            "railroad", 
-                            "river", 
-                            "road", 
-                            "roof", 
-                            "sand", 
-                            "sea", 
-                            "shelf", 
-                            "snow", 
-                            "stairs", 
-                            "tent", 
-                            "towel", 
-                            "wall-brick", 
-                            "wall-stone", 
-                            "wall-tile", 
-                            "wall-wood", 
-                            "water-other", 
-                            "window-blind", 
-                            "window-other", 
-                            "tree-merged", 
-                            "fence-merged", 
-                            "ceiling-merged", 
-                            "sky-other-merged", 
-                            "cabinet-merged", 
-                            "table-merged", 
-                            "floor-other-merged", 
-                            "pavement-merged", 
-                            "mountain-merged", 
-                            "grass-merged", 
-                            "dirt-merged", 
-                            "paper-merged", 
-                            "food-other-merged", 
-                            "building-other-merged", 
-                            "rock-merged", 
-                            "wall-other-merged", 
-                            "rug-merged"};
+// std::string classes[135] = {"person", 
+//                             "bicycle", 
+//                             "car", 
+//                             "motorcycle", 
+//                             "airplane", 
+//                             "bus", 
+//                             "train", 
+//                             "truck", 
+//                             "boat", 
+//                             "traffic light", 
+//                             "fire hydrant", 
+//                             "stop sign", 
+//                             "parking meter", 
+//                             "bench", 
+//                             "bird", 
+//                             "cat", 
+//                             "dog", 
+//                             "horse", 
+//                             "sheep", 
+//                             "cow", 
+//                             "elephant", 
+//                             "bear", 
+//                             "zebra", 
+//                             "giraffe", 
+//                             "backpack", 
+//                             "umbrella", 
+//                             "handbag", 
+//                             "tie", 
+//                             "suitcase", 
+//                             "frisbee", 
+//                             "skis", 
+//                             "snowboard", 
+//                             "sports ball", 
+//                             "kite", 
+//                             "baseball bat", 
+//                             "baseball glove", 
+//                             "skateboard", 
+//                             "surfboard", 
+//                             "tennis racket", 
+//                             "bottle", 
+//                             "wine glass", 
+//                             "cup", 
+//                             "fork", 
+//                             "knife", 
+//                             "spoon", 
+//                             "bowl", 
+//                             "banana", 
+//                             "apple", 
+//                             "sandwich", 
+//                             "orange", 
+//                             "broccoli", 
+//                             "carrot", 
+//                             "hot dog", 
+//                             "pizza", 
+//                             "donut", 
+//                             "cake", 
+//                             "chair", 
+//                             "couch", 
+//                             "potted plant", 
+//                             "bed", 
+//                             "dining table", 
+//                             "toilet", 
+//                             "tv", 
+//                             "laptop", 
+//                             "mouse", 
+//                             "remote", 
+//                             "keyboard", 
+//                             "cell phone", 
+//                             "microwave", 
+//                             "oven", 
+//                             "toaster", 
+//                             "sink", 
+//                             "refrigerator", 
+//                             "book", 
+//                             "clock", 
+//                             "vase", 
+//                             "scissors", 
+//                             "teddy bear", 
+//                             "hair drier", 
+//                             "toothbrush", 
+//                             "background",
+//                             "banner",
+//                             "blanket", 
+//                             "bridge", 
+//                             "cardboard", 
+//                             "counter", 
+//                             "curtain", 
+//                             "door-stuff", 
+//                             "floor-wood", 
+//                             "flower", 
+//                             "fruit", 
+//                             "gravel", 
+//                             "house", 
+//                             "light", 
+//                             "mirror-stuff", 
+//                             "net", 
+//                             "pillow", 
+//                             "platform", 
+//                             "playingfield", 
+//                             "railroad", 
+//                             "river", 
+//                             "road", 
+//                             "roof", 
+//                             "sand", 
+//                             "sea", 
+//                             "shelf", 
+//                             "snow", 
+//                             "stairs", 
+//                             "tent", 
+//                             "towel", 
+//                             "wall-brick", 
+//                             "wall-stone", 
+//                             "wall-tile", 
+//                             "wall-wood", 
+//                             "water-other", 
+//                             "window-blind", 
+//                             "window-other", 
+//                             "tree-merged", 
+//                             "fence-merged", 
+//                             "ceiling-merged", 
+//                             "sky-other-merged", 
+//                             "cabinet-merged", 
+//                             "table-merged", 
+//                             "floor-other-merged", 
+//                             "pavement-merged", 
+//                             "mountain-merged", 
+//                             "grass-merged", 
+//                             "dirt-merged", 
+//                             "paper-merged", 
+//                             "food-other-merged", 
+//                             "building-other-merged", 
+//                             "rock-merged", 
+//                             "wall-other-merged", 
+//                             "rug-merged"};
+
+const std::unordered_map<int, std::string> classes ({{0, "Person"}, {13, "Bench"}, {24, "Backpack"}, {39, "Bottle"}, {41, "Cup"},
+                                                   {56, "Chair"}, {57, "Couch"}, {59, "Bed"}, {60, "Table"}, {61, "Toilet"},
+                                                   {62, "TV"}, {63, "Laptop"}, {64, "Mouse"}, {66, "Keyboard"}, {68, "Microwave"},
+                                                   {69, "Oven"}, {72, "Refrigerator"}, {73, "Book"}, {87, "Door"}, {122, "Table"},
+                                                   {121, "Cabinet"}, {123, "Floor"}, {132, "Wall"}, {119, "Ceiling"}});
+
 
 Controller::Controller(ros::NodeHandle* node_handle_private)
     : node_handle_private_(node_handle_private),
@@ -806,7 +813,7 @@ bool Controller::saveSegmentsAsMeshCallback(
     CHECK_EQ(mkdir(kSegmentFolder, ACCESSPERMS), 0);
   }
 
-  std::string path = ros::package::getPath("perception_ros") + "/" + kSegmentFolder;
+  std::string path = ros::package::getPath("gsm_node") + "/ply_data/" + kSegmentFolder;
   CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
 
   bool overall_success = true;
@@ -849,7 +856,9 @@ bool Controller::getListSemanticInstancesCallback(
 
   // Map class id to human-readable semantic category label.
   for (const SemanticLabel semantic_label : semantic_labels) {
-    response.semantic_categories.push_back(classes[(unsigned)semantic_label]);
+    auto class_it = classes.find((int)semantic_label);
+    if (class_it != classes.end())
+        response.semantic_categories.push_back(class_it->second);
   }
   return true;
 }
@@ -937,7 +946,7 @@ bool Controller::extractInstancesCallback(
   all_semantic_labels.push_back(static_cast<SemanticLabel>(80));
 
   std::ofstream out;
-  std::string path = ros::package::getPath("perception_ros") + "/instance_segments";
+  std::string path = ros::package::getPath("gsm_node") + "/ply_data/instance_segments";
   CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
   out.open (path + "/id.txt", std::ofstream::out | std::ofstream::trunc);
   out.close();
@@ -951,7 +960,9 @@ bool Controller::extractInstancesCallback(
   {
     InstanceLabel instance_label = all_instance_labels[i];
     auto it = instance_label_to_layers.find(instance_label);
-    if (it != instance_label_to_layers.end())
+    auto class_it = classes.find((int)all_semantic_labels[i]);
+
+    if (it != instance_label_to_layers.end() && class_it != classes.end())
     {
         const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
         pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(new pcl::PointCloud<pcl::PointSurfel>);
@@ -960,7 +971,7 @@ bool Controller::extractInstancesCallback(
         Eigen::Quaternionf bbox_quaternion;
         Eigen::Vector3f bbox_size;
         computeGroundOrientedBoundingBox(instance_pointcloud, &bbox_translation, &bbox_quaternion, &bbox_size);
-        out << std::to_string(all_instance_labels[i]) << " " << std::to_string(all_semantic_labels[i]) << " "
+        out << std::to_string(all_instance_labels[i]) << " " << class_it->second << " "
             << std::to_string(bbox_translation(0)) << " " << std::to_string(bbox_translation(1)) << " " << std::to_string(bbox_translation(2)) << " "
             << std::to_string(bbox_size(0)) << " " << std::to_string(bbox_size(1)) << " " << std::to_string(bbox_size(2)) << " "
             << std::to_string(bbox_quaternion.x()) << " " << std::to_string(bbox_quaternion.y()) << " " << std::to_string(bbox_quaternion.z()) << " "
@@ -1004,7 +1015,7 @@ void Controller::extractInstanceSegments(
         continue;    
       }  
       
-      std::string path = ros::package::getPath("perception_ros") + "/instance_segments";
+      std::string path = ros::package::getPath("gsm_node") + "/ply_data/instance_segments";
       CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
 
       std::string mesh_filename = path + "/" + std::to_string(instance_label) + ".ply";
@@ -1178,7 +1189,11 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
     }
 
     for (int i = 0; i < all_instance_labels.size(); i++)
-      std::cout<<classes[(unsigned)all_semantic_labels[i]]<<" "<<(int)all_semantic_labels[i]<<" "<<(int)all_instance_labels[i]<<std::endl;
+    {
+      auto class_it = classes.find((int)all_semantic_labels[i]);
+      if (class_it != classes.end())
+        std::cout<<class_it->second<<" "<<class_it->first<<" "<<(int)all_instance_labels[i]<<std::endl;
+    }
 
     bool kSaveSegmentsAsPly = false;
     extractInstanceSegments(all_instance_labels, kSaveSegmentsAsPly,
