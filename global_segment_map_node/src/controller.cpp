@@ -532,6 +532,7 @@ void Controller::processSegment(
       pcl::fromROSMsg(*segment_point_cloud_msg, point_cloud_label);
       segment = new Segment(point_cloud_label, T_G_C);
     }
+    
     CHECK_NOTNULL(segment);
     segments_to_integrate_.push_back(segment);
     ptcloud_timer.Stop();
@@ -613,6 +614,8 @@ void Controller::integrateFrame(ros::Time msg_timestamp) {
             << " label blocks.";
 
   start = ros::WallTime::now();
+
+  std::cout << "No. of labels: " << map_->getLabelList().size() <<std::endl;
 
   integrator_->mergeLabels(&merges_to_publish_);
   integrator_->getLabelsToPublish(&segment_labels_to_publish_);
@@ -1045,7 +1048,6 @@ bool Controller::lookupTransform(const std::string& from_frame,
   // up the latest (this is to work with bag files and static transform
   // publisher, etc).
   if (!tf_listener_.canTransform(to_frame, from_frame, time_to_lookup)) {
-    std::cout << "using latest tf" << std::endl;
     time_to_lookup = ros::Time(0);
     LOG(ERROR) << "Using latest TF transform instead of timestamp match.";
     return false;
@@ -1207,8 +1209,8 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
 
       const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
 
-      pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(
-          new pcl::PointCloud<pcl::PointSurfel>);
+    //   pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(
+    //       new pcl::PointCloud<pcl::PointSurfel>);
 
     //   convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_,
     //                               instance_pointcloud.get());

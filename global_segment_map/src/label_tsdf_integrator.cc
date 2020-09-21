@@ -328,8 +328,6 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
 
   if (label_tsdf_config_.enable_semantic_instance_segmentation)
   {
-    std::cout<<"Semantic instance fusion ++++++++++++++++++++++++++++++++ !"<<std::endl;
-    std::cout << "segment size " << segments_to_integrate->size() <<std::endl;
     int i = 0;
     while (labelled_segments.size() > 0)
     {    
@@ -337,7 +335,6 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
         i++;
         if (i > 5)
             break;   
-        std::cout<<"Nexrt run ++++++++++++++ !"<<std::endl;
         for (auto segment_it = labelled_segments.begin(); segment_it != labelled_segments.end();) 
         {
             Label label = (*segment_it)->label_;
@@ -413,13 +410,13 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
                 // If enable instance-level merging
                 if (label_tsdf_config_.enable_instance_label_merging)
                 {
-                    LOG(INFO)<<"Start instance lebel merging!";
+                    LOG(INFO)<<"Start instance label merging!";
                     semantic_instance_label_fusion_ptr_->increaseClassInstanceLabelCount(
                         label, instance_label, semantic_label);
                     semantic_instance_label_fusion_ptr_->increaseClassInstanceCount(
                         instance_label, semantic_label);  
                     semantic_instance_label_fusion_ptr_->computeInstanceMergeCandidate(label, instance_label, semantic_label);
-                    LOG(INFO)<<"Finish instance lebel merging!";
+                    LOG(INFO)<<"Finish instance label merging!";
                 }  
 
                 LOG(INFO)<<"Check pending instance!";
