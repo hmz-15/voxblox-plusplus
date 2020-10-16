@@ -132,7 +132,7 @@ void MeshLabelIntegrator::generateMeshBlocksFunction(
 
 // TODO(margaritaG): handle this remeshing!!
 InstanceLabel MeshLabelIntegrator::getInstanceLabel(const Label& label) {
-  float kFramesCountThresholdFactor = 0.1f;
+  float kFramesCountThresholdFactor = 0.00f;
 
   InstanceLabel instance_label =
       semantic_instance_label_fusion_ptr_->getInstanceLabel(

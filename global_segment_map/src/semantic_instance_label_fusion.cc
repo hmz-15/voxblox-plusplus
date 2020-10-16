@@ -22,7 +22,7 @@ bool SemanticInstanceLabelFusion::getNextInstanceMerge(const SemanticLabel& sema
         while (ordered_labels.size() > 0)
         {
             InstanceLabel max_label = ordered_labels.back();
-            checked_labels.insert(max_label);
+            checked_labels.emplace(max_label);
             std::map<InstanceLabel, int> candidate_map = sem_it->second.find(max_label)->second;
 
             std::vector<std::pair<int, InstanceLabel>> ordered_candidate_labels;
@@ -30,7 +30,9 @@ bool SemanticInstanceLabelFusion::getNextInstanceMerge(const SemanticLabel& sema
             {
                 ordered_candidate_labels.push_back(std::make_pair(inst_it->second, inst_it->first));
             }     
-            std::sort(ordered_candidate_labels.begin(), ordered_candidate_labels.end());  
+
+            auto cmp = [](const auto& a, const auto& b)->bool {return a.first < b.first;};
+            std::sort(ordered_candidate_labels.begin(), ordered_candidate_labels.end(), cmp);  
             
             // Loop over all instance label candidates
             while (ordered_candidate_labels.size() > 0)
@@ -80,12 +82,12 @@ void SemanticInstanceLabelFusion::mergeInstanceLabel(const SemanticLabel& semant
             auto inst_it_new = sem_it->second.find(new_label);
             if (inst_it_new != sem_it->second.end())
             {
-                // Whether add to old labels?
-                // auto inst_it_old = sem_it->second.find(old_label);
-                // if (inst_it_old != sem_it->second.end())
-                //     inst_it_old->second += inst_it_new->second;
-                // else
-                //     sem_it->second.insert(std::make_pair(old_label, inst_it_new->second));
+                // Actually need to add to old labels
+                auto inst_it_old = sem_it->second.find(old_label);
+                if (inst_it_old != sem_it->second.end())
+                    inst_it_old->second += inst_it_new->second;
+                else
+                    sem_it->second.insert(std::make_pair(old_label, inst_it_new->second));
                 sem_it->second.erase(inst_it_new);
             }
         }
@@ -156,6 +158,7 @@ void SemanticInstanceLabelFusion::mergeInstanceLabels()
         while (getNextInstanceMerge(semantic_label, new_label, old_label, checked_labels))
             mergeInstanceLabel(semantic_label, new_label, old_label);        
     }
+
 }
 
 void SemanticInstanceLabelFusion::computeInstanceMergeCandidate(const Label& label, const InstanceLabel& instance_label, 

@@ -249,6 +249,12 @@ bool LabelTsdfIntegrator::getNextSegmentLabelPair(
 
   for (auto label_it = candidates->begin(); label_it != candidates->end();
        ++label_it) {
+
+    size_t label_count = 0;
+    auto it = label_count_map_ptr_->find(label_it->first);
+    if (it != label_count_map_ptr_->end())
+        label_count = it->second;
+
     for (auto segment_it = label_it->second.begin();
          segment_it != label_it->second.end(); segment_it++) {
       bool count_greater_than_max = segment_it->second > max_count;
@@ -256,7 +262,12 @@ bool LabelTsdfIntegrator::getNextSegmentLabelPair(
           segment_it->second > label_tsdf_config_.min_label_voxel_count;
       bool is_unlabelled =
           labelled_segments.find(segment_it->first) == labelled_segments.end();
-      if (count_greater_than_max && count_greater_than_min && is_unlabelled) {
+    
+      bool overlap_ratio_valid = 
+          segment_it->second > label_count * 0.0;
+
+      if (count_greater_than_max && count_greater_than_min && is_unlabelled
+           && overlap_ratio_valid) {
         max_count = segment_it->second;
         max_segment = segment_it->first;
         max_label = label_it->first;

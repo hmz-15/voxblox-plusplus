@@ -20,7 +20,7 @@ InstanceLabels LabelTsdfMap::getInstanceList() {
   std::set<InstanceLabel> instance_labels_set;
   Labels labels = getLabelList();
 
-  float kFramesCountThresholdFactor = 0.1f;
+  float kFramesCountThresholdFactor = 0.00f;
 
   for (const Label label : labels) {
     InstanceLabel instance_label =
@@ -41,7 +41,7 @@ void LabelTsdfMap::getSemanticInstanceList(InstanceLabels* instance_labels,
   std::set<InstanceLabel> instance_labels_set;
   Labels labels = getLabelList();
 
-  float kFramesCountThresholdFactor = 0.1f;
+  float kFramesCountThresholdFactor = 0.00f;
 
   for (const Label label : labels) {
     auto pair = semantic_instance_label_fusion_.getSemanticInstanceLabel(label, kFramesCountThresholdFactor);
@@ -191,7 +191,7 @@ void LabelTsdfMap::extractInstanceLayers(
       if (global_label_voxel.label == 0u) {
         continue;
       }
-      float kFramesCountThresholdFactor = 0.1f;
+      float kFramesCountThresholdFactor = 0.00f;
       InstanceLabel instance_label =
           semantic_instance_label_fusion_.getInstanceLabel(
               global_label_voxel.label, kFramesCountThresholdFactor);
