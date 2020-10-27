@@ -456,112 +456,112 @@ void SemanticInstanceLabelFusion::checkPendingInstanceLabel(const Label& label, 
     }
 }
 
-InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(const Label& label, const float count_threshold_factor,
-                                 const std::set<InstanceLabel>& assigned_instances) const
-{
-    InstanceLabel instance_label = 0u;
-    SemanticLabel semantic_label = getSemanticLabel(label);
-    instance_label = getInstanceLabel(label, semantic_label, count_threshold_factor, assigned_instances);
-    return instance_label;
-}
+// InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(const Label& label, const float count_threshold_factor,
+//                                  const std::set<InstanceLabel>& assigned_instances) const
+// {
+//     InstanceLabel instance_label = 0u;
+//     SemanticLabel semantic_label = getSemanticLabel(label);
+//     instance_label = getInstanceLabel(label, semantic_label, count_threshold_factor, assigned_instances);
+//     return instance_label;
+// }
 
-InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(const Label& label, const SemanticLabel& semantic_label,
-                                 const std::set<InstanceLabel>& assigned_instances) const
-{
-    InstanceLabel instance_label = 0u;
-    float count_threshold_factor = 0.0f;
-    instance_label = getInstanceLabel(label, semantic_label, count_threshold_factor, assigned_instances);
-    return instance_label;
+// InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(const Label& label, const SemanticLabel& semantic_label,
+//                                  const std::set<InstanceLabel>& assigned_instances) const
+// {
+//     InstanceLabel instance_label = 0u;
+//     float count_threshold_factor = 0.0f;
+//     instance_label = getInstanceLabel(label, semantic_label, count_threshold_factor, assigned_instances);
+//     return instance_label;
+// }
+
+// InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(
+//     const Label& label, const SemanticLabel& semantic_label, const float count_threshold_factor,
+//     const std::set<InstanceLabel>& assigned_instances) const
+// {
+//     InstanceLabel instance_label = 0u;
+//     int max_count = 0;
+//     auto label_it = label_class_instance_count_.find(label);
+//     if (label_it != label_class_instance_count_.end())
+//     {
+//         auto sem_it = label_it->second.find(semantic_label);
+//         if (sem_it != label_it->second.end())
+//         {
+//             for (auto const& instance_count : sem_it->second)
+//             {
+//                 if (instance_count.second > max_count && instance_count.first != 0u &&
+//                     assigned_instances.find(instance_count.first) == assigned_instances.end())
+//                 {
+//                     int frames_count = 0;
+//                     auto label_count_it = label_frames_count_.find(label);
+//                     if (label_count_it != label_frames_count_.end())
+//                         frames_count = label_count_it->second;
+//                     if (instance_count.second > count_threshold_factor * (float)(frames_count - instance_count.second))
+//                     {
+//                         instance_label = instance_count.first;
+//                         max_count = instance_count.second;
+//                     } 
+//                 }
+//             }
+//         }                
+//     }
+//     return instance_label;
+// }
+
+// std::pair<SemanticLabel, InstanceLabel> SemanticInstanceLabelFusion::getSemanticInstanceLabel(
+//     const Label& label, const float count_threshold_factor) const 
+// {
+//     InstanceLabel instance_label = 0u;
+//     SemanticLabel semantic_label = getSemanticLabel(label);
+//     if (semantic_label != 80u)
+//         instance_label = getInstanceLabel(label, semantic_label, count_threshold_factor);
+//     return std::make_pair(semantic_label, instance_label);
+// }
+
+InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(
+    const Label& label,
+    const std::set<InstanceLabel>& assigned_instances) const {
+  return getInstanceLabel(label, 0.0f, assigned_instances);
 }
 
 InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(
-    const Label& label, const SemanticLabel& semantic_label, const float count_threshold_factor,
-    const std::set<InstanceLabel>& assigned_instances) const
-{
-    InstanceLabel instance_label = 0u;
-    int max_count = 0;
-    auto label_it = label_class_instance_count_.find(label);
-    if (label_it != label_class_instance_count_.end())
-    {
-        auto sem_it = label_it->second.find(semantic_label);
-        if (sem_it != label_it->second.end())
-        {
-            for (auto const& instance_count : sem_it->second)
-            {
-                if (instance_count.second > max_count && instance_count.first != 0u &&
-                    assigned_instances.find(instance_count.first) == assigned_instances.end())
-                {
-                    int frames_count = 0;
-                    auto label_count_it = label_frames_count_.find(label);
-                    if (label_count_it != label_frames_count_.end())
-                        frames_count = label_count_it->second;
-                    if (instance_count.second > count_threshold_factor * (float)(frames_count - instance_count.second))
-                    {
-                        instance_label = instance_count.first;
-                        max_count = instance_count.second;
-                    } 
-                }
-            }
-        }                
+    const Label& label, const float count_threshold_factor,
+    const std::set<InstanceLabel>& assigned_instances) const {
+  InstanceLabel instance_label = 0u;
+  int max_count = 0;
+  auto label_it = label_instance_count_.find(label);
+  if (label_it != label_instance_count_.end()) {
+    for (auto const& instance_count : label_it->second) {
+      if (instance_count.second > max_count && instance_count.first != 0u &&
+          assigned_instances.find(instance_count.first) ==
+              assigned_instances.end()) {
+        int frames_count = 0;
+        auto label_count_it = label_frames_count_.find(label);
+        if (label_count_it != label_frames_count_.end()) {
+          frames_count = label_count_it->second;
+        }
+        if (instance_count.second >
+            count_threshold_factor *
+                (float)(frames_count - instance_count.second)) {
+          instance_label = instance_count.first;
+          max_count = instance_count.second;
+        }
+      }
     }
-    return instance_label;
+  } else {
+    // LOG(ERROR) << "No semantic class for label?";
+  }
+  // TODO(margaritaG): handle this remeshing!!
+  // auto prev_instance_it = label_instance_map_.find(label);
+  //   if (prev_instance_it != label_instance_map_.end()) {
+  //     if (prev_instance_it->second != instance_label) {
+  //       *remesh_ptr_ = true;
+  //     }
+  //   }
+  //   label_instance_map_[label] = instance_label;
+  //   return instance_label;
+
+  return instance_label;
 }
-
-std::pair<SemanticLabel, InstanceLabel> SemanticInstanceLabelFusion::getSemanticInstanceLabel(
-    const Label& label, const float count_threshold_factor) const 
-{
-    InstanceLabel instance_label = 0u;
-    SemanticLabel semantic_label = getSemanticLabel(label);
-    if (semantic_label != 80u)
-        instance_label = getInstanceLabel(label, semantic_label, count_threshold_factor);
-    return std::make_pair(semantic_label, instance_label);
-}
-
-// InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(
-//     const Label& label,
-//     const std::set<InstanceLabel>& assigned_instances) const {
-//   return getInstanceLabel(label, 0.0f, assigned_instances);
-// }
-
-// InstanceLabel SemanticInstanceLabelFusion::getInstanceLabel(
-//     const Label& label, const float count_threshold_factor,
-//     const std::set<InstanceLabel>& assigned_instances) const {
-//   InstanceLabel instance_label = 0u;
-//   int max_count = 0;
-//   auto label_it = label_instance_count_.find(label);
-//   if (label_it != label_instance_count_.end()) {
-//     for (auto const& instance_count : label_it->second) {
-//       if (instance_count.second > max_count && instance_count.first != 0u &&
-//           assigned_instances.find(instance_count.first) ==
-//               assigned_instances.end()) {
-//         int frames_count = 0;
-//         auto label_count_it = label_frames_count_.find(label);
-//         if (label_count_it != label_frames_count_.end()) {
-//           frames_count = label_count_it->second;
-//         }
-//         if (instance_count.second >
-//             count_threshold_factor *
-//                 (float)(frames_count - instance_count.second)) {
-//           instance_label = instance_count.first;
-//           max_count = instance_count.second;
-//         }
-//       }
-//     }
-//   } else {
-//     // LOG(ERROR) << "No semantic class for label?";
-//   }
-//   // TODO(margaritaG): handle this remeshing!!
-//   // auto prev_instance_it = label_instance_map_.find(label);
-//   //   if (prev_instance_it != label_instance_map_.end()) {
-//   //     if (prev_instance_it->second != instance_label) {
-//   //       *remesh_ptr_ = true;
-//   //     }
-//   //   }
-//   //   label_instance_map_[label] = instance_label;
-//   //   return instance_label;
-
-//   return instance_label;
-// }
 
 void SemanticInstanceLabelFusion::increaseLabelClassCount(
     const Label& label, const SemanticLabel& semantic_label, const int count) {
@@ -580,36 +580,16 @@ void SemanticInstanceLabelFusion::increaseLabelClassCount(
   }
 }
 
-SemanticLabel SemanticInstanceLabelFusion::getSemanticLabel(
-    const Label& label) const {
-  SemanticLabel semantic_label = 80u;
-
-  int max_count = 0;
-  auto label_it = label_class_count_.find(label);
-  if (label_it != label_class_count_.end()) {
-    for (auto const& class_count : label_it->second) {
-      if (class_count.second > max_count &&
-          class_count.first != 80u) {
-        semantic_label = class_count.first;
-        max_count = class_count.second;
-      }
-    }
-  }
-  return semantic_label;
-}
 // SemanticLabel SemanticInstanceLabelFusion::getSemanticLabel(
 //     const Label& label) const {
 //   SemanticLabel semantic_label = 80u;
 
-//   if (getInstanceLabel(label) == BackgroundLabel) {
-//     return semantic_label;
-//   }
 //   int max_count = 0;
 //   auto label_it = label_class_count_.find(label);
 //   if (label_it != label_class_count_.end()) {
 //     for (auto const& class_count : label_it->second) {
 //       if (class_count.second > max_count &&
-//           class_count.first != BackgroundLabel) {
+//           class_count.first != 80u) {
 //         semantic_label = class_count.first;
 //         max_count = class_count.second;
 //       }
@@ -617,6 +597,26 @@ SemanticLabel SemanticInstanceLabelFusion::getSemanticLabel(
 //   }
 //   return semantic_label;
 // }
+SemanticLabel SemanticInstanceLabelFusion::getSemanticLabel(
+    const Label& label) const {
+  SemanticLabel semantic_label = 80u;
+
+  if (getInstanceLabel(label) == BackgroundLabel) {
+    return semantic_label;
+  }
+  int max_count = 0;
+  auto label_it = label_class_count_.find(label);
+  if (label_it != label_class_count_.end()) {
+    for (auto const& class_count : label_it->second) {
+      if (class_count.second > max_count &&
+          class_count.first != BackgroundLabel) {
+        semantic_label = class_count.first;
+        max_count = class_count.second;
+      }
+    }
+  }
+  return semantic_label;
+}
 
 
 

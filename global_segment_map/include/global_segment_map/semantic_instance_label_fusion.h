@@ -40,24 +40,24 @@ class SemanticInstanceLabelFusion {
 
   void checkPendingInstanceLabel(const Label& label, const SemanticLabel& semantic_label, bool enable_instance_label_merging);
 
-//   InstanceLabel getInstanceLabel(
-//       const Label& label, const std::set<InstanceLabel>& assigned_instances =
-//                               std::set<InstanceLabel>()) const;
+  InstanceLabel getInstanceLabel(
+      const Label& label, const std::set<InstanceLabel>& assigned_instances =
+                              std::set<InstanceLabel>()) const;
 
-//   InstanceLabel getInstanceLabel(
-//       const Label& label, const float count_threshold_factor,
-//       const std::set<InstanceLabel>& assigned_instances =
-//           std::set<InstanceLabel>()) const;
-  InstanceLabel getInstanceLabel(const Label& label, const float count_threshold_factor = 0.0f,
-                                 const std::set<InstanceLabel>& assigned_instances = std::set<InstanceLabel>()) const;
+  InstanceLabel getInstanceLabel(
+      const Label& label, const float count_threshold_factor,
+      const std::set<InstanceLabel>& assigned_instances =
+          std::set<InstanceLabel>()) const;
+//   InstanceLabel getInstanceLabel(const Label& label, const float count_threshold_factor = 0.0f,
+//                                  const std::set<InstanceLabel>& assigned_instances = std::set<InstanceLabel>()) const;
 
-  InstanceLabel getInstanceLabel(const Label& label, const SemanticLabel& semantic_label,
-                                 const std::set<InstanceLabel>& assigned_instances = std::set<InstanceLabel>()) const;
+//   InstanceLabel getInstanceLabel(const Label& label, const SemanticLabel& semantic_label,
+//                                  const std::set<InstanceLabel>& assigned_instances = std::set<InstanceLabel>()) const;
 
-  InstanceLabel getInstanceLabel(const Label& label, const SemanticLabel& semantic_label, const float count_threshold_factor = 0.0f,
-                                 const std::set<InstanceLabel>& assigned_instances = std::set<InstanceLabel>()) const;
+//   InstanceLabel getInstanceLabel(const Label& label, const SemanticLabel& semantic_label, const float count_threshold_factor = 0.0f,
+//                                  const std::set<InstanceLabel>& assigned_instances = std::set<InstanceLabel>()) const;
                     
-  std::pair<SemanticLabel, InstanceLabel> getSemanticInstanceLabel(const Label& label, const float count_threshold_factor) const;
+//   std::pair<SemanticLabel, InstanceLabel> getSemanticInstanceLabel(const Label& label, const float count_threshold_factor) const;
 
   void increaseLabelClassCount(const Label& label, const SemanticLabel& semantic_label, const int count = 1);
 

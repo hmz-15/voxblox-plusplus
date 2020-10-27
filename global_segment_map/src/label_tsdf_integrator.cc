@@ -396,14 +396,14 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
                 } else {
                     // Current frame instance doesn't map to any global instance.
                     // Get the global instance with max count.
-                    instance_label =
-                        semantic_instance_label_fusion_ptr_->getInstanceLabel(label, semantic_label, assigned_instances);
+                    // instance_label =
+                    //     semantic_instance_label_fusion_ptr_->getInstanceLabel(label, semantic_label, assigned_instances);
                     
                     if (instance_label != 0u) {
                         current_to_global_instance_map_.emplace(
                             (*segment_it)->instance_label_, instance_label);
                         // std::cout<<"emplace "<< (int)((*segment_it)->instance_label_) << std::endl;
-                        // semantic_instance_label_fusion_ptr_->increaseLabelInstanceCount(label, instance_label);
+                        semantic_instance_label_fusion_ptr_->increaseLabelInstanceCount(label, instance_label);
                         assigned_instances.emplace(instance_label);
                     } else {
                         // Create new global instance.
@@ -411,28 +411,28 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
                         current_to_global_instance_map_.emplace(
                             (*segment_it)->instance_label_, instance_label);
                         // std::cout<<"emplace "<< (int)((*segment_it)->instance_label_) << std::endl;
-                        // semantic_instance_label_fusion_ptr_->increaseLabelInstanceCount(label, instance_label);
+                        semantic_instance_label_fusion_ptr_->increaseLabelInstanceCount(label, instance_label);
                     }
                 }
-                semantic_instance_label_fusion_ptr_->increaseLabelClassInstanceCount(
-                    label, instance_label, semantic_label);
+                // semantic_instance_label_fusion_ptr_->increaseLabelClassInstanceCount(
+                //     label, instance_label, semantic_label);
                 semantic_instance_label_fusion_ptr_->increaseLabelClassCount(label, semantic_label);
 
                 // If enable instance-level merging
-                if (label_tsdf_config_.enable_instance_label_merging)
-                {
-                    LOG(INFO)<<"Start instance label merging!";
-                    semantic_instance_label_fusion_ptr_->increaseClassInstanceLabelCount(
-                        label, instance_label, semantic_label);
-                    semantic_instance_label_fusion_ptr_->increaseClassInstanceCount(
-                        instance_label, semantic_label);  
-                    semantic_instance_label_fusion_ptr_->computeInstanceMergeCandidate(label, instance_label, semantic_label);
-                    LOG(INFO)<<"Finish instance label merging!";
-                }  
+                // if (label_tsdf_config_.enable_instance_label_merging)
+                // {
+                //     LOG(INFO)<<"Start instance label merging!";
+                //     semantic_instance_label_fusion_ptr_->increaseClassInstanceLabelCount(
+                //         label, instance_label, semantic_label);
+                //     semantic_instance_label_fusion_ptr_->increaseClassInstanceCount(
+                //         instance_label, semantic_label);  
+                //     semantic_instance_label_fusion_ptr_->computeInstanceMergeCandidate(label, instance_label, semantic_label);
+                //     LOG(INFO)<<"Finish instance label merging!";
+                // }  
 
                 LOG(INFO)<<"Check pending instance!";
                 // Finally check pending instance labels
-                semantic_instance_label_fusion_ptr_->checkPendingInstanceLabel(label, semantic_label, label_tsdf_config_.enable_instance_label_merging);
+                // semantic_instance_label_fusion_ptr_->checkPendingInstanceLabel(label, semantic_label, label_tsdf_config_.enable_instance_label_merging);
                 LOG(INFO)<<"Finish check pending instance!";
 
             } else {
