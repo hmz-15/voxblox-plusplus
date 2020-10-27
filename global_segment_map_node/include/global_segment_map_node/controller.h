@@ -181,6 +181,8 @@ class Controller {
   std::shared_ptr<MeshLabelIntegrator> mesh_instance_integrator_;
   std::shared_ptr<MeshLabelIntegrator> mesh_merged_integrator_;
 
+  std::shared_ptr<std::vector<OBBox>> boxes_ptr_;
+
   std::vector<Label> segment_labels_to_publish_;
   std::map<Label, std::set<Label>> merges_to_publish_;
 

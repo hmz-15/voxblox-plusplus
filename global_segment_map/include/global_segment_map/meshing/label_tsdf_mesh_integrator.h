@@ -29,6 +29,7 @@ class MeshLabelIntegrator : public MeshIntegrator<TsdfVoxel> {
     kLabelConfidence,
     kSemantic,
     kInstance,
+    kPanoptic,
     kMerged
   };
 

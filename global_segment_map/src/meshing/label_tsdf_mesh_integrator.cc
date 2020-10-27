@@ -132,7 +132,7 @@ void MeshLabelIntegrator::generateMeshBlocksFunction(
 
 // TODO(margaritaG): handle this remeshing!!
 InstanceLabel MeshLabelIntegrator::getInstanceLabel(const Label& label) {
-  float kFramesCountThresholdFactor = 0.00f;
+  float kFramesCountThresholdFactor = 0.1f;
 
   InstanceLabel instance_label =
       semantic_instance_label_fusion_ptr_->getInstanceLabel(
@@ -354,6 +354,19 @@ void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
           // }
           
         // } break;
+        case kPanoptic: {
+          SemanticLabel semantic_label = 80u;
+          InstanceLabel instance_label = getInstanceLabel(voxel.label);
+          if (instance_label != BackgroundLabel) {
+            semantic_label =
+                semantic_instance_label_fusion_ptr_->getSemanticLabel(
+                    voxel.label);
+          }
+          if (semantic_label >= 80u && semantic_label != 122u && semantic_label != 121u)
+            semantic_color_map_.getColor(semantic_label, &(mesh->colors[i]));
+          else
+            instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
+        } break;
         default: {
           LOG(FATAL) << "Unknown mesh color scheme: "
                      << label_tsdf_config_.color_scheme;
@@ -393,6 +406,19 @@ void MeshLabelIntegrator::updateMeshColor(const Block<LabelVoxel>& label_block,
             // instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
           // }
         // } break;
+        case kPanoptic: {
+          SemanticLabel semantic_label = 80u;
+          InstanceLabel instance_label = getInstanceLabel(voxel.label);
+          if (instance_label != BackgroundLabel) {
+            semantic_label =
+                semantic_instance_label_fusion_ptr_->getSemanticLabel(
+                    voxel.label);
+          }
+          if (semantic_label >= 80u && semantic_label != 122u && semantic_label != 121u)
+            semantic_color_map_.getColor(semantic_label, &(mesh->colors[i]));
+          else
+            instance_color_map_.getColor(instance_label, &(mesh->colors[i]));
+        } break;
         default: {
           LOG(FATAL) << "Unknown mesh color scheme: "
                      << label_tsdf_config_.color_scheme;

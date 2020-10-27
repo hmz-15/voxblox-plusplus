@@ -4,12 +4,13 @@ namespace voxblox {
 
 Visualizer::Visualizer(
     const std::vector<std::shared_ptr<MeshLayer>>& mesh_layers,
-    bool* mesh_layer_updated, std::mutex* mesh_layer_mutex_ptr,
+    bool* mesh_layer_updated, std::mutex* mesh_layer_mutex_ptr, std::shared_ptr<std::vector<OBBox>>& boxes_ptr ,
     std::vector<double> camera_position, std::vector<double> clip_distances,
     bool save_visualizer_frames)
     : mesh_layers_(mesh_layers),
       mesh_layer_updated_(CHECK_NOTNULL(mesh_layer_updated)),
       mesh_layer_mutex_ptr_(CHECK_NOTNULL(mesh_layer_mutex_ptr)),
+      boxes_ptr_(CHECK_NOTNULL(boxes_ptr)),
       frame_count_(0u),
       camera_position_(camera_position),
       clip_distances_(clip_distances),
@@ -116,11 +117,20 @@ void Visualizer::visualizeMesh() {
       }
 
       for (int index = 0; index < n_visualizers; index++) {
+        
+        pcl_visualizers[index]->removeAllShapes();
         pcl_visualizers[index]->removePolygonMesh("meshes");
         if (!pcl_visualizers[index]->updatePolygonMesh(polygon_meshes[index],
                                                        "meshes")) {
           pcl_visualizers[index]->addPolygonMesh(polygon_meshes[index],
                                                  "meshes", 0);
+        }
+
+        std::vector<OBBox> boxes = *boxes_ptr_;
+        for (int i = 0; i < boxes.size(); i++)
+        {
+            pcl_visualizers[index]->addCube (boxes[i].pos, boxes[i].quat, boxes[i].aligned_dims(0), boxes[i].aligned_dims(1), boxes[i].aligned_dims(2), "OBB " + std::to_string(i));
+            pcl_visualizers[index]->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "OBB " + std::to_string(i));
         }
 
         if (save_visualizer_frames_) {

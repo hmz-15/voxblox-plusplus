@@ -349,6 +349,8 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
       clip_distances);
   if (visualize) {
     std::vector<std::shared_ptr<MeshLayer>> mesh_layers;
+    std::vector<OBBox> boxes;
+    boxes_ptr_ = std::make_shared<std::vector<OBBox>> (boxes);
 
     // mesh_layers.push_back(mesh_merged_layer_);
     mesh_layers.push_back(mesh_instance_layer_);
@@ -360,7 +362,7 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
     }
 
     visualizer_ =
-        new Visualizer(mesh_layers, &mesh_layer_updated_, &mesh_layer_mutex_,
+        new Visualizer(mesh_layers, &mesh_layer_updated_, &mesh_layer_mutex_, boxes_ptr_, 
                        camera_position, clip_distances, save_visualizer_frames);
     viz_thread_ = std::thread(&Visualizer::visualizeMesh, visualizer_);
   }
@@ -674,7 +676,7 @@ void Controller::resetMeshIntegrators() {
 //                               mesh_merged_layer_.get(), &need_full_remesh_));
 
   label_tsdf_mesh_config_.color_scheme =
-        MeshLabelIntegrator::ColorScheme::kInstance;
+        MeshLabelIntegrator::ColorScheme::kPanoptic;
   mesh_instance_integrator_.reset(new MeshLabelIntegrator(
         mesh_config_, label_tsdf_mesh_config_, map_.get(),
         mesh_instance_layer_.get(), &need_full_remesh_));
@@ -1198,38 +1200,55 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
         std::cout<<class_it->second<<" "<<class_it->first<<" "<<(int)all_instance_labels[i]<<std::endl;
     }
 
-    bool kSaveSegmentsAsPly = false;
-    extractInstanceSegments(all_instance_labels, kSaveSegmentsAsPly,
-                            &instance_label_to_layers);
-
-    for (const InstanceLabel inst_label: all_instance_labels)
+    bool visualize_object_bbox_ = true;
+    if (visualize_object_bbox_)
     {
-      auto it = instance_label_to_layers.find(inst_label);
-      if(it == instance_label_to_layers.end())
-          continue;
+        bool kSaveSegmentsAsPly = false;
+        extractInstanceSegments(all_instance_labels, kSaveSegmentsAsPly,
+                                &instance_label_to_layers);
 
-      const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
+        std::vector<OBBox> boxes;
+        for (int i = 0; i < all_instance_labels.size(); i++)
+        {
+            if (all_semantic_labels[i] >= 80u && all_semantic_labels[i] != 122u && all_semantic_labels[i] != 121u)
+                continue;
+            InstanceLabel inst_label = all_instance_labels[i];
 
-    //   pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(
-    //       new pcl::PointCloud<pcl::PointSurfel>);
+            auto it = instance_label_to_layers.find(inst_label);
+            if(it == instance_label_to_layers.end())
+                continue;
+            
+            pcl::PointCloud<pcl::PointSurfel>::Ptr instance_pointcloud(
+                new pcl::PointCloud<pcl::PointSurfel>);
 
-    //   convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_,
-    //                               instance_pointcloud.get());
+            {
+                std::lock_guard<std::mutex> label_tsdf_layers_lock(
+                label_tsdf_layers_mutex_);
+                const Layer<TsdfVoxel>& segment_tsdf_layer = it->second.first;
+            
+                convertVoxelGridToPointCloud(segment_tsdf_layer, mesh_config_,
+                                        instance_pointcloud.get());
+            }
 
-    //   if (instance_pointcloud->points.size()==0)
-    //     continue;
+            if (instance_pointcloud->points.size()==0)
+                continue;
+
+            OBBox box;
+            computeGroundOrientedBoundingBox(instance_pointcloud, &box.pos, &box.quat, &box.aligned_dims);
+            boxes.push_back(box);
+        }
+        boxes_ptr_->clear();
+        *boxes_ptr_ = boxes;
+
+    }
+
 
     //   Eigen::Vector3f bbox_translation;
     //   Eigen::Quaternionf bbox_quaternion;
     //   Eigen::Vector3f bbox_size;
-    //   computeAlignedBoundingBox(instance_pointcloud, &bbox_translation,
-    //                             &bbox_quaternion, &bbox_size);
     // //   SemanticLabel semantic_label = mesh_merged_integrator_->semantic_instance_label_fusion_ptr_->getSemanticLabel(inst_label);
     //   // cv::Vec3b color;
     //   // mesh_merged_integrator_->semantic_color_map_.getColor(semantic_label, &(mesh->color));
-
-    //   // bbox_quaternion.x() = 0.0;
-    //   // bbox_quaternion.y() = 0.0;
 
     //   auto itt = std::find(all_instance_labels.begin(), all_instance_labels.end(), inst_label);
 
@@ -1245,12 +1264,11 @@ void Controller::updateMeshEvent(const ros::TimerEvent& e) {
     //   //   //                     bbox_translation, bbox_quaternion, &bbox_tf);
     //   //   // tf_broadcaster_.sendTransform(bbox_tf);
     //   }
-    }
     pub_bbox_flag_ = false;
   }
 
   pub_bbox_count_ ++;
-  if (pub_bbox_count_ > 4)
+  if (pub_bbox_count_ > 2)
   {
     pub_bbox_count_ = 0;
     pub_bbox_flag_ = true;

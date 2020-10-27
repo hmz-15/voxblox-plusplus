@@ -40,7 +40,7 @@ bool SemanticInstanceLabelFusion::getNextInstanceMerge(const SemanticLabel& sema
                 InstanceLabel max_candidate_label = ordered_candidate_labels.back().second;
                 int max_count = ordered_candidate_labels.back().first;
 
-                if (semantic_label > 80u && semantic_label != 122u)
+                if (semantic_label > 80u && semantic_label != 122u && semantic_label != 121u)
                 // if (semantic_label > 80u)
                 {
                     // If stuff, merge all instances with label segments in common
@@ -195,7 +195,7 @@ void SemanticInstanceLabelFusion::computeInstanceMergeCandidate(const Label& lab
         if (current_instance_label < instance_label)
         {
             // For the instances to merge into
-            if (semantic_label < 80u || semantic_label == 122u)
+            if (semantic_label < 80u || semantic_label == 122u || semantic_label == 121u)
             // if (semantic_label < 80u)
             {
                 // For thing, check if there exists common labels; for stuff, merge all instance labels with same class
@@ -212,7 +212,7 @@ void SemanticInstanceLabelFusion::computeInstanceMergeCandidate(const Label& lab
         else
         {
             // For the instances that merges to the observed instance 
-            if (semantic_label < 80u || semantic_label == 122u)
+            if (semantic_label < 80u || semantic_label == 122u || semantic_label == 121u)
             // if (semantic_label < 80u)
             {
                 // For thing, check if there exists common labels; for stuff, merge all instance labels with same class

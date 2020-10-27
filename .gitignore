@@ -49,3 +49,5 @@ mesh_results
 autolintc
 
 *.ply
+*.txt
+*.json

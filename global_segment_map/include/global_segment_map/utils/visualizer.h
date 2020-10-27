@@ -8,10 +8,16 @@
 
 namespace voxblox {
 
+struct OBBox{
+    Eigen::Vector3f pos;
+    Eigen::Vector3f aligned_dims; // x,y,z in world frame
+    Eigen::Quaternionf quat; // x,y,z,w
+};
+
 class Visualizer {
  public:
   Visualizer(const std::vector<std::shared_ptr<MeshLayer>>& mesh_layers,
-             bool* mesh_layer_updated, std::mutex* mesh_layer_mutex_ptr,
+             bool* mesh_layer_updated, std::mutex* mesh_layer_mutex_ptr, std::shared_ptr<std::vector<OBBox>>& boxes_ptr,
              std::vector<double> camera_distances,
              std::vector<double> clip_distances, bool save_visualizer_frames);
 
@@ -21,6 +27,8 @@ class Visualizer {
 
   std::mutex* mesh_layer_mutex_ptr_;
   bool* mesh_layer_updated_;
+
+  std::shared_ptr<std::vector<OBBox>> boxes_ptr_;
 
   size_t frame_count_;
 
