@@ -356,48 +356,48 @@ void LabelTsdfIntegrator::decideLabelPointClouds(
             if ((*segment_it)->instance_label_ != 0u) {
                 LOG(INFO)<<"Get instance!";
                 SemanticLabel semantic_label = (*segment_it)->semantic_label_;  
-                if (semantic_label == 80u)
-                {
-                    LOG(INFO)<<"Get outlier!";
-                    // The segment's class is pending
-                    auto global_instance_it = current_to_global_instance_map_.find((*segment_it)->instance_label_);
-                    if (global_instance_it != current_to_global_instance_map_.end())
-                    {
-                        LOG(INFO)<<"Current instance!";
-                        // If current frame instance maps to a global instance, use it.
-                        instance_label = global_instance_it->second;
-                        semantic_label = semantic_instance_label_fusion_ptr_->getPendingInstanceLabelClass(label, instance_label);
-                        if (semantic_label == 80u)
-                        {
-                            LOG(INFO)<<"No class prediction, pending";
-                            // The label has no class prediction with the given instance label, still pending
-                            semantic_instance_label_fusion_ptr_->increaseLabelPendingInstanceCount(label, instance_label);
-                            segment_it = labelled_segments.erase(segment_it);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        LOG(INFO)<<"Save for later!";
-                        // If the "outlier" segments come first, save for later processing
-                        segment_it++;
-                        continue;
-                    } 
-                    LOG(INFO)<<"Finish processing outlier!";
-                }          
+                // if (semantic_label == 80u)
+                // {
+                //     LOG(INFO)<<"Get outlier!";
+                //     // The segment's class is pending
+                //     auto global_instance_it = current_to_global_instance_map_.find((*segment_it)->instance_label_);
+                //     if (global_instance_it != current_to_global_instance_map_.end())
+                //     {
+                //         LOG(INFO)<<"Current instance!";
+                //         // If current frame instance maps to a global instance, use it.
+                //         instance_label = global_instance_it->second;
+                //         semantic_label = semantic_instance_label_fusion_ptr_->getPendingInstanceLabelClass(label, instance_label);
+                //         if (semantic_label == 80u)
+                //         {
+                //             LOG(INFO)<<"No class prediction, pending";
+                //             // The label has no class prediction with the given instance label, still pending
+                //             semantic_instance_label_fusion_ptr_->increaseLabelPendingInstanceCount(label, instance_label);
+                //             segment_it = labelled_segments.erase(segment_it);
+                //             continue;
+                //         }
+                //     }
+                //     else
+                //     {
+                //         LOG(INFO)<<"Save for later!";
+                //         // If the "outlier" segments come first, save for later processing
+                //         segment_it++;
+                //         continue;
+                //     } 
+                //     LOG(INFO)<<"Finish processing outlier!";
+                // }          
                 // It's a segment with a current frame instance and class prediction.
                 auto global_instance_it = current_to_global_instance_map_.find(
                     (*segment_it)->instance_label_);
                 if (global_instance_it != current_to_global_instance_map_.end()) {
                     // If current frame instance maps to a global instance, use it.
                     instance_label = global_instance_it->second;
-                    //   semantic_instance_label_fusion_ptr_->increaseLabelInstanceCount(
-                    //       label, instance_label);
+                      semantic_instance_label_fusion_ptr_->increaseLabelInstanceCount(
+                          label, instance_label);
                 } else {
                     // Current frame instance doesn't map to any global instance.
                     // Get the global instance with max count.
-                    // instance_label =
-                    //     semantic_instance_label_fusion_ptr_->getInstanceLabel(label, semantic_label, assigned_instances);
+                    instance_label =
+                        semantic_instance_label_fusion_ptr_->getInstanceLabel(label, assigned_instances);
                     
                     if (instance_label != 0u) {
                         current_to_global_instance_map_.emplace(

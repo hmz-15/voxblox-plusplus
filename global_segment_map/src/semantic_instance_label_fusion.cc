@@ -601,15 +601,15 @@ SemanticLabel SemanticInstanceLabelFusion::getSemanticLabel(
     const Label& label) const {
   SemanticLabel semantic_label = 80u;
 
-  if (getInstanceLabel(label) == BackgroundLabel) {
-    return semantic_label;
-  }
+//   if (getInstanceLabel(label) == BackgroundLabel) {
+//     return semantic_label;
+//   }
   int max_count = 0;
   auto label_it = label_class_count_.find(label);
   if (label_it != label_class_count_.end()) {
     for (auto const& class_count : label_it->second) {
       if (class_count.second > max_count &&
-          class_count.first != BackgroundLabel) {
+          class_count.first != 80u) {
         semantic_label = class_count.first;
         max_count = class_count.second;
       }

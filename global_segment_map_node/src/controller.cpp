@@ -951,7 +951,7 @@ bool Controller::extractInstancesCallback(
   all_semantic_labels.push_back(static_cast<SemanticLabel>(80));
 
   std::ofstream out;
-  std::string path = ros::package::getPath("gsm_node") + "/ply_data/baseline/instance_segments";
+  std::string path = ros::package::getPath("gsm_node") + "/ply_data/rgb/instance_segments";
   CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
   out.open (path + "/id.txt", std::ofstream::out | std::ofstream::trunc);
   out.close();
@@ -1020,7 +1020,7 @@ void Controller::extractInstanceSegments(
         continue;    
       }  
       
-      std::string path = ros::package::getPath("gsm_node") + "/ply_data/baseline/instance_segments";
+      std::string path = ros::package::getPath("gsm_node") + "/ply_data/rgb/instance_segments";
       CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
 
       std::string mesh_filename = path + "/" + std::to_string(instance_label) + ".ply";
