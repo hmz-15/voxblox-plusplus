@@ -154,6 +154,7 @@ class Controller {
   size_t integrated_frames_count_;
 
   std::string world_frame_;
+  std::string extract_instance_path_;
 
   bool integration_on_;
   bool received_first_message_;

@@ -1,5 +1,6 @@
 world_frame_id: "world"
 segment_point_cloud_topic: "/perception/seg_point_cloud"
+extract_instance_folder: "/ply_data/baseline/521"
 
 voxblox:
   voxel_size: 0.01

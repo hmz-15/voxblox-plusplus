@@ -42,6 +42,7 @@ void Visualizer::visualizeMesh() {
     std::string name = "Map " + std::to_string(index + 1);
     visualizer->setWindowName(name.c_str());
     visualizer->setBackgroundColor(255, 255, 255);
+    visualizer->setSize(1200, 750);
     visualizer->initCameraParameters();
 
     if (camera_position_.size()) {

@@ -211,6 +211,9 @@ Controller::Controller(ros::NodeHandle* node_handle_private)
   node_handle_private_->param<std::string>("world_frame_id", world_frame_,
                                            world_frame_);
 
+  node_handle_private_->param<std::string>("extract_instance_folder", extract_instance_path_,
+                                           "/ply_data/instance_segments");
+
   // Workaround for OS X on mac mini not having specializations for float
   // for some reason.
   int voxels_per_side = map_config_.voxels_per_side;
@@ -951,7 +954,7 @@ bool Controller::extractInstancesCallback(
   all_semantic_labels.push_back(static_cast<SemanticLabel>(80));
 
   std::ofstream out;
-  std::string path = ros::package::getPath("gsm_node") + "/ply_data/baseline/instance_segments";
+  std::string path = ros::package::getPath("gsm_node") + extract_instance_path_;
   CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
   out.open (path + "/id.txt", std::ofstream::out | std::ofstream::trunc);
   out.close();
@@ -1020,7 +1023,7 @@ void Controller::extractInstanceSegments(
         continue;    
       }  
       
-      std::string path = ros::package::getPath("gsm_node") + "/ply_data/baseline/instance_segments";
+      std::string path = ros::package::getPath("gsm_node") + extract_instance_path_;
       CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
 
       std::string mesh_filename = path + "/" + std::to_string(instance_label) + ".ply";
@@ -1124,7 +1127,12 @@ void Controller::generateMesh(bool clear_mesh) {  // NOLINT
     //                                   *mesh_label_layer_);
     //   success &= outputMeshLayerAsPly("semantic_" + mesh_filename_, false,
     //                                   *mesh_semantic_layer_);
-      success &= outputMeshLayerAsPly("instance_" + mesh_filename_, false,
+
+      std::string path = ros::package::getPath("gsm_node") + extract_instance_path_;
+      CHECK_EQ(voxblox::file_utils::makePath(path, 0777), 0);
+
+      std::string mesh_filename = path + "/" + "instance_" + mesh_filename_;
+      success &= outputMeshLayerAsPly(mesh_filename, false,
                                       *mesh_instance_layer_);
     }
     output_mesh_timer.Stop();
